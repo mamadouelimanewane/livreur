@@ -49,6 +49,9 @@ export default {
     },
     extra: {
       appTarget: target,
+      eas: {
+        projectId: '9797d8ea-a369-4fc2-a3ea-761cc6970ea6',
+      },
     },
   },
 }
