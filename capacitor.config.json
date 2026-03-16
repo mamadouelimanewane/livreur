@@ -1,0 +1,21 @@
+{
+  "appId": "com.sur.driver",
+  "appName": "SÛR Conducteur",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#1a1d2e",
+      "showSpinner": false,
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#1a1d2e"
+    }
+  }
+}

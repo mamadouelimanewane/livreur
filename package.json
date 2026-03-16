@@ -1,0 +1,46 @@
+{
+  "name": "livreur",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "App.native.jsx",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "mobile:user": "node scripts/mobileify.js user && vite build && npx cap sync android",
+    "mobile:driver": "node scripts/mobileify.js driver && vite build && npx cap sync android",
+    "cap:sync": "npx cap sync android",
+    "cap:open": "npx cap open android",
+    "eas:user": "set APP_TARGET=user&& eas build --profile user-apk --platform android",
+    "eas:driver": "set APP_TARGET=driver&& eas build --profile driver-apk --platform android",
+    "icons": "node scripts/generate-icons.js"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.2.0",
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
+    "expo": "^55.0.6",
+    "expo-status-bar": "^55.0.4",
+    "lucide-react": "^0.577.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-icons": "^5.6.0",
+    "react-native": "^0.84.1",
+    "react-native-webview": "^13.16.1",
+    "react-router-dom": "^6.30.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.0"
+  }
+}
