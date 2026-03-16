@@ -26,7 +26,8 @@ const cfg = configs[target] || configs.user
 export default {
   expo: {
     name: cfg.name,
-    slug: cfg.slug,
+    slug: 'sur-user',
+    owner: 'mamadouelimane',
     version: '1.0.0',
     orientation: 'portrait',
     icon: cfg.icon,
