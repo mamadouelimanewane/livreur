@@ -17,6 +17,7 @@
     "cap:open": "npx cap open android",
     "eas:user": "set APP_TARGET=user&& eas build --profile user-apk --platform android",
     "eas:driver": "set APP_TARGET=driver&& eas build --profile driver-apk --platform android",
+    "keystore:encode": "node scripts/encode-keystore.js",
     "icons": "node scripts/generate-icons.js"
   },
   "dependencies": {

@@ -103,6 +103,41 @@ Pour un APK `release` signe, ajoutez ces secrets dans GitHub :
 `ANDROID_KEYSTORE_BASE64` doit contenir le fichier keystore encode en base64.
 Une fois les secrets ajoutes, lancez le workflow depuis l'onglet `Actions`.
 
+#### Preparation du keystore release
+
+Sur Windows, vous pouvez generer un keystore local avec :
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\create-android-keystore.ps1 `
+  -OutputPath .\android-release.keystore `
+  -Alias livigo `
+  -StorePassword "votre-mot-de-passe-store" `
+  -KeyPassword "votre-mot-de-passe-cle"
+```
+
+Puis encodez-le en base64 pour GitHub :
+
+```bash
+npm run keystore:encode -- android-release.keystore keystore.base64.txt
+```
+
+Ensuite, creez ces secrets GitHub :
+
+- `ANDROID_KEYSTORE_BASE64` : contenu de `keystore.base64.txt`
+- `ANDROID_KEYSTORE_PASSWORD` : mot de passe du keystore
+- `ANDROID_KEY_ALIAS` : alias utilise pendant la creation
+- `ANDROID_KEY_PASSWORD` : mot de passe de la cle
+
+Une fois les secrets ajoutes, lancez le workflow avec :
+
+- `target = all`
+- `build_type = release`
+
+Les artefacts attendus seront :
+
+- `LiviGo-client-release`
+- `LiviGo-driver-release`
+
 ### EAS
 
 ```bash
@@ -126,6 +161,8 @@ Le script `scripts/mobileify.js` prepare les builds Android selon la cible :
 Il genere la configuration Capacitor adaptee avant le `sync`.
 Le script `scripts/configure-android-signing.js` injecte la signature release
 dans le projet Android genere a la volee par GitHub Actions.
+Le script `scripts/encode-keystore.js` prepare la valeur base64 a coller dans
+`ANDROID_KEYSTORE_BASE64`.
 
 Pour le dev Expo/WebView, l'application utilise par defaut `http://10.0.2.2:5173`.
 Si vous devez viser une autre machine ou un autre port, vous pouvez definir `APP_WEB_DEV_URL`
