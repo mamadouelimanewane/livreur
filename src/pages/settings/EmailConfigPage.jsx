@@ -57,7 +57,7 @@ export default function EmailConfigPage() {
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={labelStyle}>Nom d'utilisateur SMTP</label>
-            <input defaultValue="noreply@sur.sn" style={inputStyle} />
+                <input defaultValue="noreply@livigo.sn" style={inputStyle} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={labelStyle}>Mot de passe SMTP</label>
@@ -65,11 +65,11 @@ export default function EmailConfigPage() {
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={labelStyle}>Email expéditeur</label>
-            <input defaultValue="noreply@sur.sn" style={inputStyle} />
+                <input defaultValue="noreply@livigo.sn" style={inputStyle} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={labelStyle}>Nom expéditeur</label>
-            <input defaultValue="SÛR Platform" style={inputStyle} />
+                <input defaultValue="LiviGo Platform" style={inputStyle} />
           </div>
         </div>
       </Card>

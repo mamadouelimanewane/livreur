@@ -4,8 +4,8 @@
  * mobileify.js - Sets the APP_TARGET env and generates configs for APK builds.
  *
  * Usage:
- *   node scripts/mobileify.js user      -> S\u00dbR Utilisateur
- *   node scripts/mobileify.js driver    -> S\u00dbR Conducteur
+ *   node scripts/mobileify.js user      -> LiviGo Utilisateur
+ *   node scripts/mobileify.js driver    -> LiviGo Conducteur
  *
  * Works with both Capacitor and Expo/EAS builds.
  */
@@ -22,12 +22,12 @@ const target = (process.argv[2] || 'user').toLowerCase()
 const configs = {
   user: {
     appId: 'com.sur.user',
-    appName: 'S\u00dbR Utilisateur',
+    appName: 'LiviGo Utilisateur',
     server: '/mobile/user',
   },
   driver: {
     appId: 'com.sur.driver',
-    appName: 'S\u00dbR Conducteur',
+    appName: 'LiviGo Conducteur',
     server: '/mobile/driver',
   },
 }

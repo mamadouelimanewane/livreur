@@ -3,8 +3,8 @@ import { FiMail, FiSave, FiEdit } from 'react-icons/fi'
 import { PageHeader, Btn, Badge } from '../../components/PageLayout'
 
 const templates = [
-  { id: 'TPL-001', name: 'Bienvenue - Utilisateur', subject: 'Bienvenue sur SÛR!', trigger: 'Inscription', status: 'Actif' },
-  { id: 'TPL-002', name: 'Bienvenue - Conducteur', subject: 'Votre compte conducteur SÛR', trigger: 'Inscription conducteur', status: 'Actif' },
+  { id: 'TPL-001', name: 'Bienvenue - Utilisateur', subject: 'Bienvenue sur LiviGo!', trigger: 'Inscription', status: 'Actif' },
+  { id: 'TPL-002', name: 'Bienvenue - Conducteur', subject: 'Votre compte conducteur LiviGo', trigger: 'Inscription conducteur', status: 'Actif' },
   { id: 'TPL-003', name: 'Réinitialisation mot de passe', subject: 'Réinitialisez votre mot de passe', trigger: 'Demande reset', status: 'Actif' },
   { id: 'TPL-004', name: 'Course terminée', subject: 'Votre course a été complétée', trigger: 'Fin de course', status: 'Actif' },
   { id: 'TPL-005', name: 'Documents approuvés', subject: 'Vos documents ont été approuvés', trigger: 'Approbation docs', status: 'Actif' },
@@ -62,7 +62,7 @@ export default function EmailTemplatePage() {
                 ))}
               </div>
               <textarea
-                defaultValue={`Bonjour {{user_name}},\n\nMerci de votre inscription sur SÛR!\n\nVotre compte a été créé avec succès.\n\nCordialement,\nL'équipe SÛR`}
+defaultValue={`Bonjour {{user_name}},\n\nMerci de votre inscription sur LiviGo!\n\nVotre compte a ete cree avec succes.\n\nCordialement,\nL'equipe LiviGo`}
                 style={{ width: '100%', height: 250, padding: 12, border: 'none', fontSize: 13, resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }}
               />
             </div>

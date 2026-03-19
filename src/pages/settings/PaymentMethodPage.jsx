@@ -44,7 +44,7 @@ export default function PaymentMethodPage() {
           <ToggleRow label="Cash" description="Paiement en espèces à la livraison" defaultChecked={true} badge="Populaire" />
           <ToggleRow label="Wave" description="Mobile Money - Wave Sénégal" defaultChecked={true} badge="Populaire" />
           <ToggleRow label="Orange Money" description="Mobile Money - Orange Sénégal" defaultChecked={true} />
-          <ToggleRow label="Portefeuille SÛR" description="Solde du compte utilisateur" defaultChecked={true} />
+          <ToggleRow label="Portefeuille LiviGo" description="Solde du compte utilisateur" defaultChecked={true} />
           <ToggleRow label="Carte Bancaire" description="Visa, Mastercard via Stripe" defaultChecked={false} />
           <ToggleRow label="PayPal" description="Paiement international" defaultChecked={false} />
         </Card>

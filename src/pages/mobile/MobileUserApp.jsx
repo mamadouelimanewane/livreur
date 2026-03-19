@@ -304,7 +304,7 @@ export default function MobileUserApp() {
     }
   }, [])
 
-  const statusBrand = homeContent?.brand || 'SÛR'
+  const statusBrand = homeContent?.brand || 'LiviGo'
   const statusCity = homeContent?.city || 'Dakar, Sénégal'
 
   return (

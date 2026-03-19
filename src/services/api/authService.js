@@ -18,7 +18,7 @@ export async function login(credentials) {
 
   const userData = {
     id: 1,
-    name: credentials.name ?? 'Admin S\u00dbR',
+    name: credentials.name ?? 'Admin LiviGo',
     email: credentials.email,
     role: 'superadmin',
     avatar: null,

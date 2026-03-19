@@ -3,9 +3,9 @@ import { FiEdit, FiPlus, FiSave } from 'react-icons/fi'
 import { PageHeader, Btn, Badge } from '../../components/PageLayout'
 
 const cmsPages = [
-  { id: 'CMS-001', title: 'Conditions d\'utilisation', lang: 'FR', lastEdit: '10/01/2024', content: 'Ces conditions régissent l\'utilisation de la plateforme SÛR...' },
+  { id: 'CMS-001', title: 'Conditions d\'utilisation', lang: 'FR', lastEdit: '10/01/2024', content: 'Ces conditions regissent l\'utilisation de la plateforme LiviGo...' },
   { id: 'CMS-002', title: 'Politique de confidentialité', lang: 'FR', lastEdit: '10/01/2024', content: 'Nous respectons votre vie privée...' },
-  { id: 'CMS-003', title: 'À propos de SÛR', lang: 'FR', lastEdit: '05/02/2024', content: 'SÛR est une plateforme de transport et livraison au Sénégal...' },
+  { id: 'CMS-003', title: 'A propos de LiviGo', lang: 'FR', lastEdit: '05/02/2024', content: 'LiviGo est une plateforme de transport et livraison au Senegal...' },
 ]
 
 export default function CmsPage() {

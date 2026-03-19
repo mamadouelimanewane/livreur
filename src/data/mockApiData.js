@@ -124,7 +124,7 @@ export const MOCK_TAXI_RIDES = [
 ]
 
 export const MOBILE_USER_HOME_CONTENT = {
-  brand: 'SÛR',
+  brand: 'LiviGo',
   city: 'Dakar, Sénégal',
   welcomeTitle: 'Bienvenue sur',
   welcomeDescription: 'Réservez un taxi ou commandez une livraison en quelques secondes',
@@ -141,10 +141,10 @@ export const MOBILE_USER_HOME_CONTENT = {
 }
 
 export const MOBILE_USER_RIDES = [
-  { id: 'SUR-2849', type: 'Moto Taxi', from: 'Dakar Plateau', to: 'Ouakam', status: 'completed', price: '1 500 FCFA', date: '15 Mars 2026' },
-  { id: 'SUR-2832', type: 'Livraison', from: 'Almadies', to: 'Parcelles Assainies', status: 'completed', price: '2 200 FCFA', date: '14 Mars 2026' },
-  { id: 'SUR-2815', type: 'Moto Taxi', from: 'Médina', to: 'HLM Grand Yoff', status: 'cancelled', price: '800 FCFA', date: '13 Mars 2026' },
-  { id: 'SUR-2801', type: 'Colis Express', from: 'Liberté 6', to: 'Sicap Foire', status: 'completed', price: '3 500 FCFA', date: '12 Mars 2026' },
+  { id: 'LIV-2849', type: 'Moto Taxi', from: 'Dakar Plateau', to: 'Ouakam', status: 'completed', price: '1 500 FCFA', date: '15 Mars 2026' },
+  { id: 'LIV-2832', type: 'Livraison', from: 'Almadies', to: 'Parcelles Assainies', status: 'completed', price: '2 200 FCFA', date: '14 Mars 2026' },
+  { id: 'LIV-2815', type: 'Moto Taxi', from: 'Medina', to: 'HLM Grand Yoff', status: 'cancelled', price: '800 FCFA', date: '13 Mars 2026' },
+  { id: 'LIV-2801', type: 'Colis Express', from: 'Liberte 6', to: 'Sicap Foire', status: 'completed', price: '3 500 FCFA', date: '12 Mars 2026' },
 ]
 
 export const MOBILE_USER_PROFILE = {
@@ -166,7 +166,7 @@ export const MOBILE_USER_PROFILE = {
 }
 
 export const MOBILE_DRIVER_HOME_CONTENT = {
-  brand: 'SÛR Conducteur',
+  brand: 'LiviGo Conducteur',
   statusLabel: 'Statut actuel',
   onlineLabel: 'En ligne',
   offlineLabel: 'Hors ligne',
@@ -184,9 +184,9 @@ export const MOBILE_DRIVER_HOME_CONTENT = {
     destination: 'Ouakam - Cité Avion',
   },
   recentRides: [
-    { id: 'SUR-2849', from: 'Médina', to: 'HLM', price: '1 200 FCFA', time: '14:30', status: 'done' },
-    { id: 'SUR-2845', from: 'Parcelles', to: 'Almadies', price: '2 000 FCFA', time: '13:15', status: 'done' },
-    { id: 'SUR-2840', from: 'Sicap', to: 'Liberté 6', price: '800 FCFA', time: '11:45', status: 'cancel' },
+  { id: 'LIV-2849', from: 'Medina', to: 'HLM', price: '1 200 FCFA', time: '14:30', status: 'done' },
+  { id: 'LIV-2845', from: 'Parcelles', to: 'Almadies', price: '2 000 FCFA', time: '13:15', status: 'done' },
+  { id: 'LIV-2840', from: 'Sicap', to: 'Liberte 6', price: '800 FCFA', time: '11:45', status: 'cancel' },
   ],
 }
 

@@ -25,7 +25,7 @@ export default function LoginPage() {
     }
     setLoading(true)
     try {
-      await login({ email, password, name: 'Admin S\u00dbR' })
+      await login({ email, password, name: 'Admin LiviGo' })
       navigate('/dashboard', { replace: true })
     } catch {
       setError('Identifiants invalides.')
@@ -85,7 +85,7 @@ export default function LoginPage() {
               margin: 0,
             }}
           >
-            {'S\u00dbR'}
+            {'LiviGo'}
           </h1>
           <p
             style={{
@@ -156,7 +156,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="admin@sur.com"
+                placeholder="admin@livigo.com"
                 autoComplete="email"
                 style={{
                   width: '100%',

@@ -148,7 +148,7 @@ function WelcomeBanner() {
         <h1 style={{
           fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: '-0.01em',
         }}>
-          Tableau de bord SÛR
+          Tableau de bord LiviGo
         </h1>
         <p style={{
           fontSize: 13, opacity: 0.65, marginTop: 6, maxWidth: 500, lineHeight: 1.5,

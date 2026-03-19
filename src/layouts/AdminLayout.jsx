@@ -43,7 +43,7 @@ export default function AdminLayout() {
             flexShrink: 0,
           }}
         >
-          {'\u00a9 2026 S\u00dbR \u2014 Tous droits r\u00e9serv\u00e9s'}
+          {'\u00a9 2026 LiviGo \u2014 Tous droits reserves'}
         </footer>
       </div>
     </div>

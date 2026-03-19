@@ -32,15 +32,15 @@ export default function AppUrlPage() {
           <h3 style={{ fontSize: 15, fontWeight: 700, color: '#2d3748', marginTop: 0, marginBottom: 16 }}>App Utilisateur</h3>
           <div style={{ marginBottom: 16 }}>
             <label style={labelStyle}>Google Play Store</label>
-            <input defaultValue="https://play.google.com/store/apps/details?id=sn.sur.user" style={inputStyle} />
+                <input defaultValue="https://play.google.com/store/apps/details?id=sn.livigo.user" style={inputStyle} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={labelStyle}>Apple App Store</label>
-            <input defaultValue="https://apps.apple.com/app/sur/id123456789" style={inputStyle} />
+                <input defaultValue="https://apps.apple.com/app/livigo/id123456789" style={inputStyle} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={labelStyle}>APK Direct (Android)</label>
-            <input defaultValue="https://sur.sn/downloads/user.apk" style={inputStyle} />
+                <input defaultValue="https://livigo.sn/downloads/user.apk" style={inputStyle} />
           </div>
         </Card>
 
@@ -48,15 +48,15 @@ export default function AppUrlPage() {
           <h3 style={{ fontSize: 15, fontWeight: 700, color: '#2d3748', marginTop: 0, marginBottom: 16 }}>App Conducteur</h3>
           <div style={{ marginBottom: 16 }}>
             <label style={labelStyle}>Google Play Store</label>
-            <input defaultValue="https://play.google.com/store/apps/details?id=sn.sur.driver" style={inputStyle} />
+                <input defaultValue="https://play.google.com/store/apps/details?id=sn.livigo.driver" style={inputStyle} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={labelStyle}>Apple App Store</label>
-            <input defaultValue="https://apps.apple.com/app/sur-driver/id987654321" style={inputStyle} />
+                <input defaultValue="https://apps.apple.com/app/livigo-driver/id987654321" style={inputStyle} />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={labelStyle}>APK Direct (Android)</label>
-            <input defaultValue="https://sur.sn/downloads/driver.apk" style={inputStyle} />
+                <input defaultValue="https://livigo.sn/downloads/driver.apk" style={inputStyle} />
           </div>
         </Card>
       </div>

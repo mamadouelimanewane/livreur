@@ -6,7 +6,7 @@ const options = [
   { id: 'PAY-002', name: 'Wave', icon: '🌊', type: 'Mobile Money', country: 'Sénégal', forUser: true, forDriver: true, status: 'Actif' },
   { id: 'PAY-003', name: 'Orange Money', icon: '🟠', type: 'Mobile Money', country: 'Sénégal', forUser: true, forDriver: false, status: 'Actif' },
   { id: 'PAY-004', name: 'Carte bancaire', icon: '💳', type: 'Carte', country: 'Sénégal', forUser: true, forDriver: false, status: 'Inactif' },
-  { id: 'PAY-005', name: 'Portefeuille SÛR', icon: '👛', type: 'Portefeuille', country: 'Tous', forUser: true, forDriver: true, status: 'Actif' },
+  { id: 'PAY-005', name: 'Portefeuille LiviGo', icon: '👛', type: 'Portefeuille', country: 'Tous', forUser: true, forDriver: true, status: 'Actif' },
 ]
 
 const yes = <Badge color="#2ed8a3" bg="#e6faf4">Oui</Badge>

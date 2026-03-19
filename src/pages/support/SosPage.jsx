@@ -5,7 +5,7 @@ const sosNumbers = [
   { id: 'SOS-001', label: 'Police Nationale', number: '17', type: 'Urgence', country: 'Sénégal', status: 'Actif' },
   { id: 'SOS-002', label: 'SAMU', number: '15', type: 'Médical', country: 'Sénégal', status: 'Actif' },
   { id: 'SOS-003', label: 'Pompiers', number: '18', type: 'Incendie', country: 'Sénégal', status: 'Actif' },
-  { id: 'SOS-004', label: 'Support SÛR', number: '+221 33 820 00 00', type: 'Support', country: 'Sénégal', status: 'Actif' },
+  { id: 'SOS-004', label: 'Support LiviGo', number: '+221 33 820 00 00', type: 'Support', country: 'Sénégal', status: 'Actif' },
   { id: 'SOS-005', label: 'Assistance routière', number: '+221 77 000 00 00', type: 'Routier', country: 'Sénégal', status: 'Inactif' },
 ]
 

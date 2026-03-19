@@ -221,7 +221,7 @@ export default function Sidebar() {
             letterSpacing: '0.04em',
           }}
         >
-          {'S\u00dbR'}
+          {'LiviGo'}
         </span>
         <span
           style={{

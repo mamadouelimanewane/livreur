@@ -54,11 +54,11 @@ export default function GeneralSettingsPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 20px' }}>
             <div style={{ marginBottom: 16 }}>
               <label style={labelStyle}>Nom de la plateforme</label>
-              <input defaultValue="SÛR" style={inputStyle} />
+                <input defaultValue="LiviGo" style={inputStyle} />
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={labelStyle}>Email de contact</label>
-              <input defaultValue="contact@sur.sn" style={inputStyle} />
+                <input defaultValue="contact@livigo.sn" style={inputStyle} />
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={labelStyle}>Téléphone de contact</label>
@@ -66,7 +66,7 @@ export default function GeneralSettingsPage() {
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={labelStyle}>Site web</label>
-              <input defaultValue="https://sur.sn" style={inputStyle} />
+                <input defaultValue="https://livigo.sn" style={inputStyle} />
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={labelStyle}>Fuseau horaire</label>

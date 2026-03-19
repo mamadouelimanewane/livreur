@@ -3,7 +3,7 @@ const webDevUrl = process.env.APP_WEB_DEV_URL || 'http://10.0.2.2:5173'
 
 const configs = {
   user: {
-    name: 'S\u00dbR Utilisateur',
+    name: 'LiviGo Utilisateur',
     slug: 'sur-user',
     bundleId: 'com.sur.user',
     icon: './assets/icon-user.png',
@@ -12,7 +12,7 @@ const configs = {
     },
   },
   driver: {
-    name: 'S\u00dbR Conducteur',
+    name: 'LiviGo Conducteur',
     slug: 'sur-driver',
     bundleId: 'com.sur.driver',
     icon: './assets/icon-driver.png',

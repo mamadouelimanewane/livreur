@@ -1,6 +1,6 @@
 {
   "appId": "com.sur.driver",
-  "appName": "S\u00dbR Conducteur",
+  "appName": "LiviGo Conducteur",
   "webDir": "dist",
   "server": {
     "androidScheme": "https"

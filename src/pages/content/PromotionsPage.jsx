@@ -3,7 +3,7 @@ import { PageHeader, Btn, FilterBar, Select, DataTable, Badge } from '../../comp
 
 const promotions = [
   { id: 'PROMO-001', title: 'Promotion Ramadan 2024', message: 'Profitez de 20% de réduction sur vos courses pendant tout le Ramadan!', target: 'Tous', channel: 'Push + SMS', sent: 1240, opened: 890, date: '15/03/2024', status: 'Envoyé' },
-  { id: 'PROMO-002', title: 'Offre Nouveau Conducteur', message: 'Rejoignez SÛR et gagnez un bonus de 10 000 FCFA après 50 courses!', target: 'Conducteurs', channel: 'Push', sent: 0, opened: 0, date: '20/03/2024', status: 'Planifié' },
+  { id: 'PROMO-002', title: 'Offre Nouveau Conducteur', message: 'Rejoignez LiviGo et gagnez un bonus de 10 000 FCFA apres 50 courses!', target: 'Conducteurs', channel: 'Push', sent: 0, opened: 0, date: '20/03/2024', status: 'Planifie' },
   { id: 'PROMO-003', title: 'Weekend Livraison Gratuite', message: 'Livraison gratuite ce weekend sur toutes vos commandes!', target: 'Utilisateurs', channel: 'Push + Email', sent: 680, opened: 512, date: '10/03/2024', status: 'Envoyé' },
 ]
 

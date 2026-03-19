@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
   appId: 'com.sur.app',
-  appName: 'S\u00dbR',
+  appName: 'LiviGo',
   webDir: 'dist',
   server: {
     androidScheme: 'https',

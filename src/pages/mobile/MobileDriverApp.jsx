@@ -349,7 +349,7 @@ export default function MobileDriverApp() {
     }
   }, [])
 
-  const statusBrand = homeContent?.brand || 'SÛR Conducteur'
+  const statusBrand = homeContent?.brand || 'LiviGo Conducteur'
 
   return (
     <div style={{

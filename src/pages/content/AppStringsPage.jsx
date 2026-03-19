@@ -3,8 +3,8 @@ import { FiType, FiDownload, FiEdit2, FiSave, FiX } from 'react-icons/fi'
 import { PageHeader, Btn, FilterBar, Select, TextInput } from '../../components/PageLayout'
 
 const strings = [
-  { key: 'app_name', en: 'SÛR', fr: 'SÛR' },
-  { key: 'welcome_message', en: 'Welcome to SÛR', fr: 'Bienvenue sur SÛR' },
+  { key: 'app_name', en: 'LiviGo', fr: 'LiviGo' },
+  { key: 'welcome_message', en: 'Welcome to LiviGo', fr: 'Bienvenue sur LiviGo' },
   { key: 'find_driver', en: 'Find a driver', fr: 'Trouver un conducteur' },
   { key: 'book_now', en: 'Book Now', fr: 'Réserver maintenant' },
   { key: 'cancel_ride', en: 'Cancel Ride', fr: 'Annuler la course' },

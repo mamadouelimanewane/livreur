@@ -2,10 +2,10 @@ import { FiUsers, FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import { PageHeader, Btn, FilterBar, TextInput, DataTable, Badge } from '../../components/PageLayout'
 
 const admins = [
-  { id: 'ADM-001', name: 'Super Admin', email: 'admin@sur.sn', role: 'Super Administrateur', lastLogin: '15/03/2024 08:00', status: 'Actif' },
-  { id: 'ADM-002', name: 'Aminata Sow', email: 'aminata@sur.sn', role: 'Administrateur', lastLogin: '15/03/2024 09:30', status: 'Actif' },
-  { id: 'ADM-003', name: 'Mamadou Diallo', email: 'mamadou@sur.sn', role: 'Support', lastLogin: '14/03/2024 18:00', status: 'Actif' },
-  { id: 'ADM-004', name: 'Khadija Ndiaye', email: 'khadija@sur.sn', role: 'Finance', lastLogin: '10/03/2024 10:00', status: 'Inactif' },
+  { id: 'ADM-001', name: 'Super Admin', email: 'admin@livigo.sn', role: 'Super Administrateur', lastLogin: '15/03/2024 08:00', status: 'Actif' },
+  { id: 'ADM-002', name: 'Aminata Sow', email: 'aminata@livigo.sn', role: 'Administrateur', lastLogin: '15/03/2024 09:30', status: 'Actif' },
+  { id: 'ADM-003', name: 'Mamadou Diallo', email: 'mamadou@livigo.sn', role: 'Support', lastLogin: '14/03/2024 18:00', status: 'Actif' },
+  { id: 'ADM-004', name: 'Khadija Ndiaye', email: 'khadija@livigo.sn', role: 'Finance', lastLogin: '10/03/2024 10:00', status: 'Inactif' },
 ]
 
 const roleStyle = {
