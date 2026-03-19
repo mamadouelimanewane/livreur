@@ -1,33 +1,77 @@
+import { useEffect, useState } from 'react'
 import { FiTruck, FiDownload, FiPlus } from 'react-icons/fi'
 import { PageHeader, Btn, FilterBar, Select, TextInput, DataTable, Badge } from '../../components/PageLayout'
-
-const drivers = [
-  { id: 'DRV-001', name: 'Oumar Sall', phone: '+221 77 100 22 33', vehicleType: 'Moto', brand: 'Yamaha', plate: 'DK-1234-AB', year: 2021, rides: 48, status: 'Actif' },
-  { id: 'DRV-002', name: 'Cheikh Fall', phone: '+221 76 200 33 44', vehicleType: 'Voiture', brand: 'Toyota', plate: 'DK-5678-CD', year: 2019, rides: 32, status: 'Actif' },
-  { id: 'DRV-003', name: 'Ibrahima Ba', phone: '+221 70 300 44 55', vehicleType: 'Moto', brand: 'Honda', plate: 'DK-9012-EF', year: 2022, rides: 61, status: 'Actif' },
-  { id: 'DRV-004', name: 'Seydou Diop', phone: '+221 77 400 55 66', vehicleType: 'Vélo', brand: '-', plate: '-', year: 2023, rides: 14, status: 'Inactif' },
-  { id: 'DRV-005', name: 'Abdoulaye Mbaye', phone: '+221 76 500 66 77', vehicleType: 'Voiture', brand: 'Renault', plate: 'DK-3456-GH', year: 2020, rides: 27, status: 'Actif' },
-]
-
-const statusStyle = {
-  'Actif': { color: '#2ed8a3', bg: '#e6faf4' },
-  'Inactif': { color: '#ff5370', bg: '#fff0f3' },
-}
+import { getDriverStatusStyles, getVehicleDrivers } from '../../services/api/driversService'
 
 export default function VehicleBasedDriversPage() {
-  const data = drivers.map((d, i) => [
-    i + 1,
-    <span style={{ color: '#4680ff', fontWeight: 600 }}>{d.id}</span>,
-    <div>
-      <div style={{ fontWeight: 600, color: '#2d3748' }}>{d.name}</div>
-      <div style={{ fontSize: 12, color: '#718096' }}>{d.phone}</div>
+  const [drivers, setDrivers] = useState([])
+  const [vehicleType, setVehicleType] = useState('Tous types')
+  const [zone, setZone] = useState('Toutes zones')
+  const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadDrivers() {
+      try {
+        setLoading(true)
+        setError('')
+        const nextDrivers = await getVehicleDrivers()
+        if (isMounted) {
+          setDrivers(nextDrivers)
+        }
+      } catch {
+        if (isMounted) {
+          setError('Impossible de charger les conducteurs par véhicule.')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadDrivers()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const statusStyle = getDriverStatusStyles()
+  const vehicleTypes = ['Tous types', ...new Set(drivers.map(driver => driver.vehicleType))]
+  const zones = ['Toutes zones', ...new Set(drivers.map(driver => driver.zone))]
+  const normalizedSearch = search.trim().toLowerCase()
+  const filteredDrivers = drivers.filter(driver => {
+    const matchesVehicleType = vehicleType === 'Tous types' || driver.vehicleType === vehicleType
+    const matchesZone = zone === 'Toutes zones' || driver.zone === zone
+    const matchesSearch = !normalizedSearch || [
+      driver.id,
+      driver.name,
+      driver.phone,
+      driver.vehicleType,
+      driver.brand,
+      driver.plate,
+    ].some(value => String(value).toLowerCase().includes(normalizedSearch))
+
+    return matchesVehicleType && matchesZone && matchesSearch
+  })
+
+  const data = filteredDrivers.map((driver, index) => [
+    index + 1,
+    <span key={`${driver.id}-id`} style={{ color: '#4680ff', fontWeight: 600 }}>{driver.id}</span>,
+    <div key={`${driver.id}-details`}>
+      <div style={{ fontWeight: 600, color: '#2d3748' }}>{driver.name}</div>
+      <div style={{ fontSize: 12, color: '#718096' }}>{driver.phone}</div>
     </div>,
-    d.vehicleType,
-    d.brand,
-    d.plate,
-    d.year,
-    d.rides,
-    <Badge color={statusStyle[d.status].color} bg={statusStyle[d.status].bg}>{d.status}</Badge>,
+    driver.vehicleType,
+    driver.brand,
+    driver.plate,
+    driver.year,
+    driver.rides,
+    <Badge key={`${driver.id}-status`} color={statusStyle[driver.status]?.color || '#718096'} bg={statusStyle[driver.status]?.bg || '#edf2f7'}>{driver.status}</Badge>,
   ])
 
   return (
@@ -38,17 +82,27 @@ export default function VehicleBasedDriversPage() {
       </PageHeader>
 
       <FilterBar>
-        <Select value="Tous types" onChange={() => {}} options={['Tous types', 'Moto', 'Voiture', 'Vélo', 'Camion']} />
-        <Select value="Toutes zones" onChange={() => {}} options={['Toutes zones', 'Dakar Centre', 'Plateau', 'Parcelles']} />
-        <TextInput placeholder="Rechercher par conducteur..." value="" onChange={() => {}} />
+        <Select value={vehicleType} onChange={event => setVehicleType(event.target.value)} options={vehicleTypes} />
+        <Select value={zone} onChange={event => setZone(event.target.value)} options={zones} />
+        <TextInput placeholder="Rechercher par conducteur..." value={search} onChange={event => setSearch(event.target.value)} />
         <Btn color="#4680ff">Rechercher</Btn>
-        <Btn outline color="#6c757d">Réinitialiser</Btn>
+        <Btn outline color="#6c757d" onClick={() => { setVehicleType('Tous types'); setZone('Toutes zones'); setSearch('') }}>Réinitialiser</Btn>
       </FilterBar>
 
-      <DataTable
-        columns={['S.No', 'ID', 'Conducteur', 'Type véhicule', 'Marque', 'Plaque', 'Année', 'Courses', 'Statut']}
-        data={data}
-      />
+      {loading ? (
+        <div style={{ background: '#fff', borderRadius: 8, padding: 40, textAlign: 'center', color: '#718096', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          Chargement des véhicules...
+        </div>
+      ) : error ? (
+        <div style={{ background: '#fff0f3', border: '1px solid #ff5370', borderRadius: 8, padding: 16, color: '#c53030' }}>
+          {error}
+        </div>
+      ) : (
+        <DataTable
+          columns={['S.No', 'ID', 'Conducteur', 'Type véhicule', 'Marque', 'Plaque', 'Année', 'Courses', 'Statut']}
+          data={data}
+        />
+      )}
     </div>
   )
 }

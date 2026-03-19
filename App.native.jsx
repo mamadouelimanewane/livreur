@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { SafeAreaView, StatusBar, StyleSheet, ActivityIndicator, View, BackHandler, Platform } from 'react-native'
 import { WebView } from 'react-native-webview'
 import Constants from 'expo-constants'
@@ -6,31 +6,33 @@ import Constants from 'expo-constants'
 const appTarget = Constants.expoConfig?.extra?.appTarget || 'user'
 const route = appTarget === 'driver' ? '/mobile/driver' : '/mobile/user'
 
-// In production, the web assets are bundled in dist/ and served locally
-// In dev, point to your local dev server
-const DEV_SERVER = 'http://10.0.2.2:5174' // Android emulator localhost
-const BASE_URL = __DEV__ ? DEV_SERVER : ''
+// In production, the web assets are bundled in dist/ and served locally.
+// In dev, point to the Vite server exposed to the Android emulator.
+const DEV_SERVER = 'http://10.0.2.2:5173'
+const isDev = __DEV__
 
 export default function App() {
   const webviewRef = useRef(null)
   const [loading, setLoading] = useState(true)
+  const [canGoBack, setCanGoBack] = useState(false)
 
-  // Handle Android back button
-  if (Platform.OS === 'android') {
-    BackHandler.addEventListener('hardwareBackPress', () => {
-      if (webviewRef.current) {
-        webviewRef.current.goBack()
-        return true
-      }
-      return false
+  useEffect(() => {
+    if (Platform.OS !== 'android') return undefined
+
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (!canGoBack) return false
+      webviewRef.current?.goBack()
+      return true
     })
-  }
 
-  const sourceUri = __DEV__
+    return () => subscription.remove()
+  }, [canGoBack])
+
+  const sourceUri = isDev
     ? { uri: `${DEV_SERVER}${route}` }
     : { uri: `file:///android_asset/public/index.html` }
 
-  const injectedJS = __DEV__ ? '' : `
+  const injectedJS = isDev ? '' : `
     (function() {
       if (window.location.pathname !== '${route}') {
         window.location.replace('${route}');
@@ -53,6 +55,7 @@ export default function App() {
         style={styles.webview}
         injectedJavaScript={injectedJS}
         onLoadEnd={() => setLoading(false)}
+        onNavigationStateChange={state => setCanGoBack(state.canGoBack)}
         javaScriptEnabled
         domStorageEnabled
         startInLoadingState={false}

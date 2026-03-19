@@ -1,29 +1,84 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FiMessageSquare, FiDownload, FiEye, FiCheckCircle } from 'react-icons/fi'
 import { PageHeader, Btn, FilterBar, Select, TextInput, Badge } from '../../components/PageLayout'
-
-const tickets = [
-  { id: 'TKT-001', subject: 'Conducteur non trouvé', user: 'Fatou Diallo', phone: '+221 77 123 45 67', category: 'Course', priority: 'Haute', date: '15/03/2024 10:32', status: 'Ouvert' },
-  { id: 'TKT-002', subject: 'Remboursement demandé', user: 'Moussa Ndiaye', phone: '+221 76 234 56 78', category: 'Paiement', priority: 'Moyenne', date: '15/03/2024 09:15', status: 'En traitement' },
-  { id: 'TKT-003', subject: 'Application ne se connecte pas', user: 'Aminata Koné', phone: '+221 70 345 67 89', category: 'Technique', priority: 'Basse', date: '14/03/2024 18:00', status: 'Résolu' },
-  { id: 'TKT-004', subject: 'Prix incorrect facturé', user: 'Ibrahim Touré', phone: '+221 77 456 78 90', category: 'Paiement', priority: 'Haute', date: '14/03/2024 14:20', status: 'Ouvert' },
-  { id: 'TKT-005', subject: 'Conducteur impoli', user: 'Mariama Balde', phone: '+221 76 567 89 01', category: 'Comportement', priority: 'Haute', date: '13/03/2024 20:45', status: 'En traitement' },
-]
-
-const priorityStyle = {
-  'Haute': { color: '#ff5370', bg: '#fff0f3' },
-  'Moyenne': { color: '#ffb64d', bg: '#fff8ee' },
-  'Basse': { color: '#2ed8a3', bg: '#e6faf4' },
-}
-
-const statusStyle = {
-  'Ouvert': { color: '#ff5370', bg: '#fff0f3' },
-  'En traitement': { color: '#ffb64d', bg: '#fff8ee' },
-  'Résolu': { color: '#2ed8a3', bg: '#e6faf4' },
-}
+import {
+  getCustomerServiceFilters,
+  getCustomerServiceTickets,
+  getSupportTicketPriorityStyles,
+  getSupportTicketStatusStyles,
+} from '../../services/api/supportService'
 
 export default function CustomerServicePage() {
+  const [tickets, setTickets] = useState([])
+  const [filters, setFilters] = useState({
+    statuses: ['Tous statuts'],
+    categories: ['Toutes catégories'],
+    priorities: ['Toutes priorités'],
+  })
+  const [status, setStatus] = useState('Tous statuts')
+  const [category, setCategory] = useState('Toutes catégories')
+  const [priority, setPriority] = useState('Toutes priorités')
   const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadTickets() {
+      try {
+        setLoading(true)
+        setError('')
+        const [nextTickets, nextFilters] = await Promise.all([
+          getCustomerServiceTickets(),
+          getCustomerServiceFilters(),
+        ])
+
+        if (isMounted) {
+          setTickets(nextTickets)
+          setFilters(nextFilters)
+        }
+      } catch {
+        if (isMounted) {
+          setError('Impossible de charger les tickets du service client.')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadTickets()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const priorityStyle = getSupportTicketPriorityStyles()
+  const statusStyle = getSupportTicketStatusStyles()
+  const normalizedSearch = search.trim().toLowerCase()
+  const filteredTickets = tickets.filter(ticket => {
+    const matchesStatus = status === 'Tous statuts' || ticket.status === status
+    const matchesCategory = category === 'Toutes catégories' || ticket.category === category
+    const matchesPriority = priority === 'Toutes priorités' || ticket.priority === priority
+    const matchesSearch = !normalizedSearch || [
+      ticket.id,
+      ticket.subject,
+      ticket.user,
+      ticket.phone,
+    ].some(value => value.toLowerCase().includes(normalizedSearch))
+
+    return matchesStatus && matchesCategory && matchesPriority && matchesSearch
+  })
+
+  const stats = [
+    { label: 'Total tickets', count: tickets.length, color: '#4680ff' },
+    { label: 'Ouverts', count: tickets.filter(ticket => ticket.status === 'Ouvert').length, color: '#ff5370' },
+    { label: 'En traitement', count: tickets.filter(ticket => ticket.status === 'En traitement').length, color: '#ffb64d' },
+    { label: 'Résolus', count: tickets.filter(ticket => ticket.status === 'Résolu').length, color: '#2ed8a3' },
+  ]
 
   return (
     <div>
@@ -31,73 +86,87 @@ export default function CustomerServicePage() {
         <Btn color="#4680ff"><FiDownload size={14} /></Btn>
       </PageHeader>
 
-      {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
-        {[
-          { label: 'Total tickets', count: tickets.length, color: '#4680ff' },
-          { label: 'Ouverts', count: tickets.filter(t => t.status === 'Ouvert').length, color: '#ff5370' },
-          { label: 'En traitement', count: tickets.filter(t => t.status === 'En traitement').length, color: '#ffb64d' },
-          { label: 'Résolus', count: tickets.filter(t => t.status === 'Résolu').length, color: '#2ed8a3' },
-        ].map((s, i) => (
-          <div key={i} style={{ background: '#fff', borderRadius: 8, padding: '12px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', textAlign: 'center' }}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: s.color }}>{s.count}</div>
-            <div style={{ fontSize: 11, color: '#718096', marginTop: 2 }}>{s.label}</div>
+        {stats.map((stat, index) => (
+          <div key={index} style={{ background: '#fff', borderRadius: 8, padding: '12px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', textAlign: 'center' }}>
+            <div style={{ fontSize: 22, fontWeight: 700, color: stat.color }}>{stat.count}</div>
+            <div style={{ fontSize: 11, color: '#718096', marginTop: 2 }}>{stat.label}</div>
           </div>
         ))}
       </div>
 
       <FilterBar>
-        <Select value="Tous statuts" onChange={() => {}} options={['Tous statuts', 'Ouvert', 'En traitement', 'Résolu']} />
-        <Select value="Toutes catégories" onChange={() => {}} options={['Toutes catégories', 'Course', 'Paiement', 'Technique', 'Comportement']} />
-        <Select value="Toutes priorités" onChange={() => {}} options={['Toutes priorités', 'Haute', 'Moyenne', 'Basse']} />
-        <TextInput placeholder="Rechercher..." value={search} onChange={e => setSearch(e.target.value)} />
+        <Select value={status} onChange={event => setStatus(event.target.value)} options={filters.statuses} />
+        <Select value={category} onChange={event => setCategory(event.target.value)} options={filters.categories} />
+        <Select value={priority} onChange={event => setPriority(event.target.value)} options={filters.priorities} />
+        <TextInput placeholder="Rechercher..." value={search} onChange={event => setSearch(event.target.value)} />
         <Btn color="#4680ff">Rechercher</Btn>
-        <Btn outline color="#6c757d" onClick={() => setSearch('')}>Réinitialiser</Btn>
+        <Btn outline color="#6c757d" onClick={() => {
+          setStatus('Tous statuts')
+          setCategory('Toutes catégories')
+          setPriority('Toutes priorités')
+          setSearch('')
+        }}
+        >
+          Réinitialiser
+        </Btn>
       </FilterBar>
 
-      <div style={{ background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: '#f6f7fb' }}>
-              {['S.No', 'ID', 'Sujet', 'Utilisateur', 'Catégorie', 'Priorité', 'Date', 'Statut', 'Actions'].map((h, i) => (
-                <th key={i} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#718096', borderBottom: '1px solid #edf2f7', whiteSpace: 'nowrap' }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {tickets.filter(t => !search || t.subject.toLowerCase().includes(search.toLowerCase()) || t.user.toLowerCase().includes(search.toLowerCase())).map((t, i) => (
-              <tr key={t.id} style={{ borderBottom: '1px solid #f7f9fb' }}
-                onMouseEnter={e => e.currentTarget.style.background = '#fafbff'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                <td style={{ padding: '10px 14px', fontSize: 13, color: '#718096' }}>{i + 1}</td>
-                <td style={{ padding: '10px 14px' }}><span style={{ color: '#4680ff', fontWeight: 600 }}>{t.id}</span></td>
-                <td style={{ padding: '10px 14px', fontSize: 13, fontWeight: 600, color: '#2d3748' }}>{t.subject}</td>
-                <td style={{ padding: '10px 14px' }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#2d3748' }}>{t.user}</div>
-                  <div style={{ fontSize: 11, color: '#718096' }}>{t.phone}</div>
-                </td>
-                <td style={{ padding: '10px 14px', fontSize: 12 }}>{t.category}</td>
-                <td style={{ padding: '10px 14px' }}>
-                  <Badge color={priorityStyle[t.priority].color} bg={priorityStyle[t.priority].bg}>{t.priority}</Badge>
-                </td>
-                <td style={{ padding: '10px 14px', fontSize: 11, color: '#718096', whiteSpace: 'nowrap' }}>{t.date}</td>
-                <td style={{ padding: '10px 14px' }}>
-                  <Badge color={statusStyle[t.status].color} bg={statusStyle[t.status].bg}>{t.status}</Badge>
-                </td>
-                <td style={{ padding: '10px 14px' }}>
-                  <div style={{ display: 'flex', gap: 5 }}>
-                    <button style={{ padding: '4px 8px', background: '#4680ff', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer' }}><FiEye size={12} /></button>
-                    {t.status !== 'Résolu' && (
-                      <button style={{ padding: '4px 8px', background: '#2ed8a3', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer' }}><FiCheckCircle size={12} /></button>
-                    )}
-                  </div>
-                </td>
+      {loading ? (
+        <div style={{ background: '#fff', borderRadius: 8, padding: 40, textAlign: 'center', color: '#718096', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          Chargement des tickets...
+        </div>
+      ) : error ? (
+        <div style={{ background: '#fff0f3', border: '1px solid #ff5370', borderRadius: 8, padding: 16, color: '#c53030' }}>
+          {error}
+        </div>
+      ) : (
+        <div style={{ background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#f6f7fb' }}>
+                {['S.No', 'ID', 'Sujet', 'Utilisateur', 'Catégorie', 'Priorité', 'Date', 'Statut', 'Actions'].map((header, index) => (
+                  <th key={index} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: '#718096', borderBottom: '1px solid #edf2f7', whiteSpace: 'nowrap' }}>{header}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filteredTickets.map((ticket, index) => (
+                <tr
+                  key={ticket.id}
+                  style={{ borderBottom: '1px solid #f7f9fb' }}
+                  onMouseEnter={event => { event.currentTarget.style.background = '#fafbff' }}
+                  onMouseLeave={event => { event.currentTarget.style.background = 'transparent' }}
+                >
+                  <td style={{ padding: '10px 14px', fontSize: 13, color: '#718096' }}>{index + 1}</td>
+                  <td style={{ padding: '10px 14px' }}><span style={{ color: '#4680ff', fontWeight: 600 }}>{ticket.id}</span></td>
+                  <td style={{ padding: '10px 14px', fontSize: 13, fontWeight: 600, color: '#2d3748' }}>{ticket.subject}</td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#2d3748' }}>{ticket.user}</div>
+                    <div style={{ fontSize: 11, color: '#718096' }}>{ticket.phone}</div>
+                  </td>
+                  <td style={{ padding: '10px 14px', fontSize: 12 }}>{ticket.category}</td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <Badge color={priorityStyle[ticket.priority].color} bg={priorityStyle[ticket.priority].bg}>{ticket.priority}</Badge>
+                  </td>
+                  <td style={{ padding: '10px 14px', fontSize: 11, color: '#718096', whiteSpace: 'nowrap' }}>{ticket.date}</td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <Badge color={statusStyle[ticket.status].color} bg={statusStyle[ticket.status].bg}>{ticket.status}</Badge>
+                  </td>
+                  <td style={{ padding: '10px 14px' }}>
+                    <div style={{ display: 'flex', gap: 5 }}>
+                      <button style={{ padding: '4px 8px', background: '#4680ff', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer' }}><FiEye size={12} /></button>
+                      {ticket.status !== 'Résolu' && (
+                        <button style={{ padding: '4px 8px', background: '#2ed8a3', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer' }}><FiCheckCircle size={12} /></button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }

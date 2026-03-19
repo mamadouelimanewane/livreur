@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 /**
- * mobileify.js — Sets the APP_TARGET env and generates configs for APK builds.
+ * mobileify.js - Sets the APP_TARGET env and generates configs for APK builds.
  *
  * Usage:
- *   node scripts/mobileify.js user      → SÛR Utilisateur
- *   node scripts/mobileify.js driver    → SÛR Conducteur
+ *   node scripts/mobileify.js user      -> S\u00dbR Utilisateur
+ *   node scripts/mobileify.js driver    -> S\u00dbR Conducteur
  *
  * Works with both Capacitor and Expo/EAS builds.
  */
@@ -22,12 +22,12 @@ const target = (process.argv[2] || 'user').toLowerCase()
 const configs = {
   user: {
     appId: 'com.sur.user',
-    appName: 'SÛR Utilisateur',
+    appName: 'S\u00dbR Utilisateur',
     server: '/mobile/user',
   },
   driver: {
     appId: 'com.sur.driver',
-    appName: 'SÛR Conducteur',
+    appName: 'S\u00dbR Conducteur',
     server: '/mobile/driver',
   },
 }
@@ -35,7 +35,7 @@ const configs = {
 const cfg = configs[target]
 
 if (!cfg) {
-  console.error(`❌ Unknown target "${target}". Use: user | driver`)
+  console.error(`Unknown target "${target}". Use: user | driver`)
   process.exit(1)
 }
 
@@ -70,7 +70,7 @@ writeFileSync(
   JSON.stringify(capacitorConfig, null, 2)
 )
 
-console.log(`✅ Configured for: ${cfg.appName} (${cfg.appId})`)
+console.log(`Configured for: ${cfg.appName} (${cfg.appId})`)
 console.log(`   Target: ${target} | Route: ${cfg.server}`)
 console.log('')
 console.log('   Expo/EAS:  APP_TARGET=' + target + ' eas build --profile ' + target + '-apk --platform android')

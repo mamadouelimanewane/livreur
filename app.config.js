@@ -2,7 +2,7 @@ const target = process.env.APP_TARGET || 'user'
 
 const configs = {
   user: {
-    name: 'SÛR Utilisateur',
+    name: 'S\u00dbR Utilisateur',
     slug: 'sur-user',
     bundleId: 'com.sur.user',
     icon: './assets/icon-user.png',
@@ -11,7 +11,7 @@ const configs = {
     },
   },
   driver: {
-    name: 'SÛR Conducteur',
+    name: 'S\u00dbR Conducteur',
     slug: 'sur-driver',
     bundleId: 'com.sur.driver',
     icon: './assets/icon-driver.png',
@@ -26,7 +26,7 @@ const cfg = configs[target] || configs.user
 export default {
   expo: {
     name: cfg.name,
-    slug: 'sur-user',
+    slug: cfg.slug,
     owner: 'mamadouelimane',
     version: '1.0.0',
     orientation: 'portrait',

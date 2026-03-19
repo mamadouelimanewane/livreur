@@ -1,24 +1,64 @@
+import { useEffect, useState } from 'react'
 import { FiTruck, FiDownload } from 'react-icons/fi'
-import { PageHeader, Btn, FilterBar, Select, TextInput, DataTable, Badge } from '../../components/PageLayout'
-
-const drivers = [
-  { id: 'DRV-040', name: 'Yaye Mbodj', phone: '+221 77 010 11 22', zone: 'Dakar', reason: 'Document expiré', until: '30/03/2024', rejectedDate: '01/03/2024' },
-  { id: 'DRV-041', name: 'Alioune Dione', phone: '+221 76 020 22 33', zone: 'Saint-Louis', reason: 'Vérification en cours', until: '25/03/2024', rejectedDate: '05/03/2024' },
-]
+import { PageHeader, Btn, FilterBar, TextInput, DataTable, Badge } from '../../components/PageLayout'
+import { getTempRejectedDrivers } from '../../services/api/driversService'
 
 export default function TempRejectedDriversPage() {
-  const data = drivers.map((d, i) => [
-    i + 1,
-    <span style={{ color: '#4680ff', fontWeight: 600 }}>{d.id}</span>,
-    <div>
-      <div style={{ fontWeight: 600, color: '#2d3748' }}>{d.name}</div>
-      <div style={{ fontSize: 12, color: '#718096' }}>{d.phone}</div>
+  const [drivers, setDrivers] = useState([])
+  const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadDrivers() {
+      try {
+        setLoading(true)
+        setError('')
+        const nextDrivers = await getTempRejectedDrivers()
+        if (isMounted) {
+          setDrivers(nextDrivers)
+        }
+      } catch {
+        if (isMounted) {
+          setError('Impossible de charger les conducteurs temporairement rejetés.')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadDrivers()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const normalizedSearch = search.trim().toLowerCase()
+  const filteredDrivers = drivers.filter(driver => !normalizedSearch || [
+    driver.id,
+    driver.name,
+    driver.phone,
+    driver.zone,
+    driver.reason,
+  ].some(value => value.toLowerCase().includes(normalizedSearch)))
+
+  const data = filteredDrivers.map((driver, index) => [
+    index + 1,
+    <span key={`${driver.id}-id`} style={{ color: '#4680ff', fontWeight: 600 }}>{driver.id}</span>,
+    <div key={`${driver.id}-details`}>
+      <div style={{ fontWeight: 600, color: '#2d3748' }}>{driver.name}</div>
+      <div style={{ fontSize: 12, color: '#718096' }}>{driver.phone}</div>
     </div>,
-    d.zone,
-    <span style={{ fontSize: 12, color: '#ffb64d' }}>{d.reason}</span>,
-    <span style={{ fontSize: 12, color: '#ff5370' }}>Jusqu'au {d.until}</span>,
-    d.rejectedDate,
-    <Badge color="#ffb64d" bg="#fff8ee">Temporaire</Badge>,
+    driver.zone,
+    <span key={`${driver.id}-reason`} style={{ fontSize: 12, color: '#ffb64d' }}>{driver.reason}</span>,
+    <span key={`${driver.id}-until`} style={{ fontSize: 12, color: '#ff5370' }}>Jusqu'au {driver.until}</span>,
+    driver.rejectedDate,
+    <Badge key={`${driver.id}-status`} color="#ffb64d" bg="#fff8ee">Temporaire</Badge>,
   ])
 
   return (
@@ -40,15 +80,25 @@ export default function TempRejectedDriversPage() {
       </div>
 
       <FilterBar>
-        <TextInput placeholder="Rechercher..." value="" onChange={() => {}} />
+        <TextInput placeholder="Rechercher..." value={search} onChange={event => setSearch(event.target.value)} />
         <Btn color="#4680ff">Rechercher</Btn>
-        <Btn outline color="#6c757d">Réinitialiser</Btn>
+        <Btn outline color="#6c757d" onClick={() => setSearch('')}>Réinitialiser</Btn>
       </FilterBar>
 
-      <DataTable
-        columns={['S.No', 'ID', 'Conducteur', 'Zone', 'Raison', 'Suspendu jusqu\'au', 'Date', 'Statut']}
-        data={data}
-      />
+      {loading ? (
+        <div style={{ background: '#fff', borderRadius: 8, padding: 40, textAlign: 'center', color: '#718096', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          Chargement des suspensions temporaires...
+        </div>
+      ) : error ? (
+        <div style={{ background: '#fff0f3', border: '1px solid #ff5370', borderRadius: 8, padding: 16, color: '#c53030' }}>
+          {error}
+        </div>
+      ) : (
+        <DataTable
+          columns={['S.No', 'ID', 'Conducteur', 'Zone', 'Raison', 'Suspendu jusqu\'au', 'Date', 'Statut']}
+          data={data}
+        />
+      )}
     </div>
   )
 }

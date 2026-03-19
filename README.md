@@ -1,16 +1,134 @@
-# React + Vite
+# livreur
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application front hybride pour un back-office de mobilite/livraison, avec :
 
-Currently, two official plugins are available:
+- une interface web d'administration en React + Vite ;
+- deux experiences mobiles (`user` et `driver`) rendues via WebView ;
+- un packaging Android via Capacitor et Expo/EAS.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Le depot contient surtout un socle UI riche. Plusieurs ecrans utilisent encore des donnees mockees et une authentification locale simulee.
 
-## React Compiler
+## Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19
+- Vite 8
+- React Router 6
+- Capacitor 8
+- Expo 55
+- React Native WebView
 
-## Expanding the ESLint configuration
+## Architecture
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Web admin
+
+- Point d'entree : `src/main.jsx`
+- Routage principal : `src/App.jsx`
+- Layout admin : `src/layouts/AdminLayout.jsx`
+- Auth locale mockee : `src/context/AuthContext.jsx`
+
+Le back-office est protege par un wrapper `RequireAuth`. Les routes `/mobile/user` et `/mobile/driver` sont exposees hors layout admin.
+
+### Mobile
+
+Le point d'entree natif est `App.native.jsx`.
+
+L'application native ne reconstruit pas une interface mobile complete : elle charge une route web dans un `WebView` selon `APP_TARGET` :
+
+- `user` -> `/mobile/user`
+- `driver` -> `/mobile/driver`
+
+### Donnees et services
+
+Le refactor en cours deplace progressivement les donnees ecran vers une couche `src/services/api/` avec des mocks partages dans `src/data/mockApiData.js`.
+
+Aujourd'hui :
+
+- l'auth admin reste simulee via `localStorage` ;
+- plusieurs listings (utilisateurs, conducteurs, courses, support, mobile) reposent encore sur des mocks ;
+- il n'y a pas encore de backend branche dans ce depot.
+
+## Installation
+
+Prerequis :
+
+- Node.js 20+ recommande
+- npm
+- Android Studio si vous ciblez Android
+- EAS CLI si vous utilisez Expo build
+
+Installation :
+
+```bash
+npm install
+```
+
+## Scripts utiles
+
+### Web
+
+```bash
+npm run dev
+npm run lint
+npm run build
+npm run preview
+```
+
+### Android / mobile
+
+```bash
+npm run mobile:user
+npm run mobile:driver
+npm run cap:sync
+npm run cap:open
+```
+
+### EAS
+
+```bash
+npm run eas:user
+npm run eas:driver
+```
+
+### Assets
+
+```bash
+npm run icons
+```
+
+## Cibles mobiles
+
+Le script `scripts/mobileify.js` prepare les builds Android selon la cible :
+
+- `user` : application client
+- `driver` : application conducteur
+
+Il genere la configuration Capacitor adaptee avant le `sync`.
+
+## Etat actuel
+
+Ce projet est adapte pour :
+
+- iterer rapidement sur les ecrans ;
+- demonstrer des parcours admin et mobile ;
+- servir de base de refactor vers une vraie couche metier.
+
+Ce projet n'est pas encore industrialise sur les sujets suivants :
+
+- authentification reelle ;
+- permissions serveur ;
+- persistance backend ;
+- tests automatises ;
+- strategie mobile native avancee.
+
+## Documentation complementaire
+
+- Audit technique : `docs/rapport-audit-technique-livreur.md`
+
+## Verification locale
+
+Les verifications minimales a lancer avant livraison :
+
+```bash
+npm run lint
+npm run build
+```

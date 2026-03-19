@@ -1,48 +1,22 @@
-import { createContext, useContext, useState, useCallback } from 'react'
-
-const AuthContext = createContext(null)
-
-const STORAGE_KEY = 'sur_admin_user'
-
-function loadUser() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-}
+import { useState, useCallback } from 'react'
+import AuthContext from './auth-context'
+import { getStoredUser, login as loginWithApi, logout as logoutWithApi } from '../services/api/authService'
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(loadUser)
+  const [user, setUser] = useState(getStoredUser)
 
-  const login = useCallback((credentials) => {
-    /* In a real app you would call your API here.
-       For now we accept any non-empty email/password. */
-    const userData = {
-      id: 1,
-      name: credentials.name ?? 'Admin SÛR',
-      email: credentials.email,
-      role: 'superadmin',
-      avatar: null,
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData))
+  const login = useCallback(async (credentials) => {
+    const userData = await loginWithApi(credentials)
     setUser(userData)
     return userData
   }, [])
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY)
+  const logout = useCallback(async () => {
+    await logoutWithApi()
     setUser(null)
   }, [])
 
   const value = { user, login, logout }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>')
-  return ctx
 }
