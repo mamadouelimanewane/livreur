@@ -1,4 +1,5 @@
 const target = process.env.APP_TARGET || 'user'
+const webDevUrl = process.env.APP_WEB_DEV_URL || 'http://10.0.2.2:5173'
 
 const configs = {
   user: {
@@ -22,6 +23,7 @@ const configs = {
 }
 
 const cfg = configs[target] || configs.user
+const mobileRoute = target === 'driver' ? '/mobile/driver' : '/mobile/user'
 
 export default {
   expo: {
@@ -50,6 +52,8 @@ export default {
     },
     extra: {
       appTarget: target,
+      mobileRoute,
+      webDevUrl,
       eas: {
         projectId: '9797d8ea-a369-4fc2-a3ea-761cc6970ea6',
       },

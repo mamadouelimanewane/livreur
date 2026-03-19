@@ -62,11 +62,11 @@ export default function RidesPage({ type = 'all' }) {
       )}
 
       <FilterBar>
-        <Select value="S\u00e9n\u00e9gal" onChange={() => {}} options={['S\u00e9n\u00e9gal']} />
+        <Select value={'S\u00e9n\u00e9gal'} onChange={() => {}} options={['S\u00e9n\u00e9gal']} />
         <Select value="Toutes zones" onChange={() => {}} options={['Toutes zones', 'Dakar Centre', 'Plateau', 'Parcelles', 'Gu\u00e9diawaye']} />
         <TextInput placeholder="ID course ou client..." value={search} onChange={e => setSearch(e.target.value)} />
         <Btn color="#4680ff">Rechercher</Btn>
-        <Btn outline color="#6c757d" onClick={() => setSearch('')}>R\u00e9initialiser</Btn>
+        <Btn outline color="#6c757d" onClick={() => setSearch('')}>{'R\u00e9initialiser'}</Btn>
       </FilterBar>
 
       <div style={{ background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>

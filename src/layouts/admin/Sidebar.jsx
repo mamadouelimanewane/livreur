@@ -267,7 +267,7 @@ export default function Sidebar() {
         }}
       >
         <button
-          title="Param\u00e8tres"
+          title={'Param\u00e8tres'}
           onClick={() => navigate('/settings/general')}
           style={{
             width: 38,
@@ -323,7 +323,7 @@ export default function Sidebar() {
         </button>
 
         <button
-          title="D\u00e9connexion"
+          title={'D\u00e9connexion'}
           onClick={logout}
           style={{
             width: 38,

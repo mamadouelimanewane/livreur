@@ -76,6 +76,8 @@ npm run preview
 ### Android / mobile
 
 ```bash
+npm run expo:user
+npm run expo:driver
 npm run mobile:user
 npm run mobile:driver
 npm run cap:sync
@@ -103,6 +105,10 @@ Le script `scripts/mobileify.js` prepare les builds Android selon la cible :
 - `driver` : application conducteur
 
 Il genere la configuration Capacitor adaptee avant le `sync`.
+
+Pour le dev Expo/WebView, l'application utilise par defaut `http://10.0.2.2:5173`.
+Si vous devez viser une autre machine ou un autre port, vous pouvez definir `APP_WEB_DEV_URL`
+avant `expo start`.
 
 ## Etat actuel
 

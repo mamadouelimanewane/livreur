@@ -9,6 +9,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "expo:user": "set APP_TARGET=user&& npx expo start",
+    "expo:driver": "set APP_TARGET=driver&& npx expo start",
     "mobile:user": "node scripts/mobileify.js user && vite build && npx cap sync android",
     "mobile:driver": "node scripts/mobileify.js driver && vite build && npx cap sync android",
     "cap:sync": "npx cap sync android",

@@ -68,21 +68,21 @@ export default function DriversPage() {
         <span style={pillStyle('#ffb64d', '#fff8ee')}>Approbation en attente (0)</span>
         <span style={pillStyle('#4680ff', '#ebf4ff')}>Temps d'approbation docs (0)</span>
         <span style={pillStyle('#2ed8a3', '#e6faf4')}>Inscription de base (4)</span>
-        <span style={{ ...pillStyle('#6c757d', '#f0f0f0'), border: '1px solid #ddd' }}>Effac\u00e9 Conducteurs</span>
-        <span style={pillStyle('#ff5370', '#fff0f3')}>Conducteurs rejet\u00e9s (0)</span>
+        <span style={{ ...pillStyle('#6c757d', '#f0f0f0'), border: '1px solid #ddd' }}>{'Effac\u00e9 Conducteurs'}</span>
+        <span style={pillStyle('#ff5370', '#fff0f3')}>{'Conducteurs rejet\u00e9s (0)'}</span>
         <span style={pillStyle('#2ed8a3', '#e6faf4')}>En attente d'approbation (3)</span>
       </div>
 
       <FilterBar>
         <Select value={status} onChange={e => setStatus(e.target.value)} options={filters.statuses} />
-        <Select value="S\u00e9n\u00e9gal" onChange={() => {}} options={['S\u00e9n\u00e9gal', 'C\u00f4te d\'Ivoire', 'Mali']} />
+        <Select value={'S\u00e9n\u00e9gal'} onChange={() => {}} options={['S\u00e9n\u00e9gal', 'C\u00f4te d\'Ivoire', 'Mali']} />
         <Select value={zone} onChange={e => setZone(e.target.value)} options={filters.zones} />
         <Select value={vehicleType} onChange={e => setVehicleType(e.target.value)} options={filters.vehicles} />
-        <Select value="S\u00e9lectionner par" onChange={() => {}} options={['S\u00e9lectionner par', 'Nom', 'ID']} />
+        <Select value={'S\u00e9lectionner par'} onChange={() => {}} options={['S\u00e9lectionner par', 'Nom', 'ID']} />
         <TextInput placeholder="Rechercher..." value={search} onChange={e => setSearch(e.target.value)} />
         <Select value={entries} onChange={e => setEntries(e.target.value)} options={['10', '25', '50', '100']} style={{ width: 70 }} />
         <Btn color="#4680ff">Rechercher</Btn>
-        <Btn outline color="#6c757d" onClick={() => { setSearch(''); setStatus('Tous') }}>R\u00e9initialiser</Btn>
+        <Btn outline color="#6c757d" onClick={() => { setSearch(''); setStatus('Tous') }}>{'R\u00e9initialiser'}</Btn>
       </FilterBar>
 
       <div style={{ background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>

@@ -47,7 +47,7 @@ export default function UsersPage() {
   return (
     <div>
       <PageHeader title="Gestion des utilisateurs" icon={<FiUsers />}>
-        <Btn outline color="#6c757d">Effac\u00e9 Utilisateurs (0)</Btn>
+        <Btn outline color="#6c757d">{'Effac\u00e9 Utilisateurs (0)'}</Btn>
         <Btn color="#2ed8a3"><FiPlus size={14} /> Ajouter</Btn>
         <Btn color="#4680ff"><FiDownload size={14} /></Btn>
         <Btn color="#4680ff"><FiInfo size={14} /></Btn>
@@ -59,7 +59,7 @@ export default function UsersPage() {
         <TextInput placeholder="Saisir la valeur de recherche..." value={search} onChange={e => setSearch(e.target.value)} />
         <Select value={country} onChange={e => setCountry(e.target.value)} options={filters.countries} />
         <Btn color="#4680ff">Rechercher</Btn>
-        <Btn outline color="#6c757d" onClick={() => { setSearch(''); setCountry('Tous') }}>R\u00e9initialiser</Btn>
+        <Btn outline color="#6c757d" onClick={() => { setSearch(''); setCountry('Tous') }}>{'R\u00e9initialiser'}</Btn>
       </FilterBar>
 
       <div style={{ background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>

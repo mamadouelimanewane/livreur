@@ -208,7 +208,7 @@ export default function Navbar() {
           onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
         >
           <FiGlobe size={14} color="#666" />
-          <span>Fran\u00e7ais</span>
+          <span>{'Fran\u00e7ais'}</span>
           <FiChevronDown
             size={13}
             color="#999"
@@ -399,7 +399,7 @@ export default function Navbar() {
                 onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
               >
                 <FiLogOut size={14} />
-                D\u00e9connexion
+                {'D\u00e9connexion'}
               </button>
             </div>
           </div>

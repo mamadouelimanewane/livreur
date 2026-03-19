@@ -3,12 +3,13 @@ import { SafeAreaView, StatusBar, StyleSheet, ActivityIndicator, View, BackHandl
 import { WebView } from 'react-native-webview'
 import Constants from 'expo-constants'
 
-const appTarget = Constants.expoConfig?.extra?.appTarget || 'user'
-const route = appTarget === 'driver' ? '/mobile/driver' : '/mobile/user'
+const expoExtra = Constants.expoConfig?.extra ?? {}
+const appTarget = expoExtra.appTarget || 'user'
+const route = expoExtra.mobileRoute || (appTarget === 'driver' ? '/mobile/driver' : '/mobile/user')
 
 // In production, the web assets are bundled in dist/ and served locally.
-// In dev, point to the Vite server exposed to the Android emulator.
-const DEV_SERVER = 'http://10.0.2.2:5173'
+// In dev, point to the configured Vite server exposed to the device/emulator.
+const DEV_SERVER = expoExtra.webDevUrl || 'http://10.0.2.2:5173'
 const isDev = __DEV__
 
 export default function App() {
