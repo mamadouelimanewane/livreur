@@ -1,21 +1,49 @@
-name: Build Android APK
+name: Build Android APKs
 
 on:
   workflow_dispatch:
     inputs:
       target:
-        description: 'APK target variant'
+        description: "APK target variant"
         required: true
-        default: 'user'
+        default: "all"
         type: choice
         options:
+          - all
           - user
           - driver
 
 jobs:
-  build:
-    name: Build ${{ github.event.inputs.target }} APK
+  prepare:
+    name: Select APK targets
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
+    steps:
+      - name: Build target matrix
+        id: set-matrix
+        shell: bash
+        run: |
+          case "${{ github.event.inputs.target }}" in
+            user)
+              echo 'matrix={"include":[{"target":"user","label":"client","app_name":"LiviGo Utilisateur"}]}' >> "$GITHUB_OUTPUT"
+              ;;
+            driver)
+              echo 'matrix={"include":[{"target":"driver","label":"driver","app_name":"LiviGo Conducteur"}]}' >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo 'matrix={"include":[{"target":"user","label":"client","app_name":"LiviGo Utilisateur"},{"target":"driver","label":"driver","app_name":"LiviGo Conducteur"}]}' >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+  build:
+    name: Build ${{ matrix.app_name }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
 
     steps:
       - name: Checkout
@@ -24,20 +52,20 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'zulu'
+          java-version: "17"
+          distribution: "zulu"
 
       - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Configure target (${{ github.event.inputs.target }})
-        run: node scripts/mobileify.js ${{ github.event.inputs.target }}
+      - name: Configure target (${{ matrix.target }})
+        run: node scripts/mobileify.js ${{ matrix.target }}
 
       - name: Build web assets
         run: npm run build
@@ -52,9 +80,15 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug
 
+      - name: Rename APK
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          cp android/app/build/outputs/apk/debug/app-debug.apk "artifacts/LiviGo-${{ matrix.label }}-debug.apk"
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SUR-${{ github.event.inputs.target }}-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: LiviGo-${{ matrix.label }}-debug
+          path: artifacts/LiviGo-${{ matrix.label }}-debug.apk
           retention-days: 30
