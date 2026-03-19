@@ -84,6 +84,25 @@ npm run cap:sync
 npm run cap:open
 ```
 
+### GitHub Actions APK
+
+Le workflow GitHub `Build Android APKs` peut generer :
+
+- les deux variantes en une fois (`all`) ;
+- seulement le client (`user`) ;
+- seulement le livreur (`driver`) ;
+- en `debug` ou en `release`.
+
+Pour un APK `release` signe, ajoutez ces secrets dans GitHub :
+
+- `ANDROID_KEYSTORE_BASE64`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+
+`ANDROID_KEYSTORE_BASE64` doit contenir le fichier keystore encode en base64.
+Une fois les secrets ajoutes, lancez le workflow depuis l'onglet `Actions`.
+
 ### EAS
 
 ```bash
@@ -105,6 +124,8 @@ Le script `scripts/mobileify.js` prepare les builds Android selon la cible :
 - `driver` : application conducteur
 
 Il genere la configuration Capacitor adaptee avant le `sync`.
+Le script `scripts/configure-android-signing.js` injecte la signature release
+dans le projet Android genere a la volee par GitHub Actions.
 
 Pour le dev Expo/WebView, l'application utilise par defaut `http://10.0.2.2:5173`.
 Si vous devez viser une autre machine ou un autre port, vous pouvez definir `APP_WEB_DEV_URL`

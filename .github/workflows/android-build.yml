@@ -12,6 +12,14 @@ on:
           - all
           - user
           - driver
+      build_type:
+        description: "APK build type"
+        required: true
+        default: "release"
+        type: choice
+        options:
+          - release
+          - debug
 
 jobs:
   prepare:
@@ -38,7 +46,7 @@ jobs:
           esac
 
   build:
-    name: Build ${{ matrix.app_name }}
+    name: Build ${{ matrix.app_name }} (${{ github.event.inputs.build_type }})
     needs: prepare
     runs-on: ubuntu-latest
     strategy:
@@ -70,25 +78,78 @@ jobs:
       - name: Build web assets
         run: npm run build
 
-      - name: Sync Capacitor
-        run: npx cap sync android
+      - name: Generate Android platform
+        shell: bash
+        run: |
+          if [ -d android ]; then
+            npx cap sync android
+          else
+            npx cap add android
+          fi
+
+      - name: Validate release signing secrets
+        if: ${{ github.event.inputs.build_type == 'release' }}
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          missing=0
+          for var in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!var}" ]; then
+              echo "::error::Missing GitHub secret: $var"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Prepare release keystore
+        if: ${{ github.event.inputs.build_type == 'release' }}
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/livigo-release.keystore"
+
+      - name: Configure Android release signing
+        if: ${{ github.event.inputs.build_type == 'release' }}
+        env:
+          ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/livigo-release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: node scripts/configure-android-signing.js
 
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build debug APK
+      - name: Build APK
         working-directory: android
-        run: ./gradlew assembleDebug
+        shell: bash
+        run: |
+          if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
+            ./gradlew assembleRelease
+          else
+            ./gradlew assembleDebug
+          fi
 
       - name: Rename APK
         shell: bash
         run: |
           mkdir -p artifacts
-          cp android/app/build/outputs/apk/debug/app-debug.apk "artifacts/LiviGo-${{ matrix.label }}-debug.apk"
+          if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
+            cp android/app/build/outputs/apk/release/app-release.apk "artifacts/LiviGo-${{ matrix.label }}-release.apk"
+          else
+            cp android/app/build/outputs/apk/debug/app-debug.apk "artifacts/LiviGo-${{ matrix.label }}-debug.apk"
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: LiviGo-${{ matrix.label }}-debug
-          path: artifacts/LiviGo-${{ matrix.label }}-debug.apk
+          name: LiviGo-${{ matrix.label }}-${{ github.event.inputs.build_type }}
+          path: artifacts/LiviGo-${{ matrix.label }}-${{ github.event.inputs.build_type }}.apk
           retention-days: 30
