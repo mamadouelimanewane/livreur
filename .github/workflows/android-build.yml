@@ -73,9 +73,27 @@ jobs:
           cache: "npm"
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: "platform-tools platforms;android-36 build-tools;36.0.0"
+        shell: bash
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
+          ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+        run: |
+          set -euo pipefail
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -n 1)"
+          fi
+
+          if [ -z "${SDKMANAGER:-}" ] || [ ! -x "$SDKMANAGER" ]; then
+            echo "::error::sdkmanager not found in $ANDROID_HOME"
+            exit 1
+          fi
+
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Install dependencies
         run: npm ci
@@ -136,16 +154,28 @@ jobs:
         run: chmod +x android/gradlew
 
       - name: Build APK
+        id: build_apk
         working-directory: android
         shell: bash
+        continue-on-error: true
         run: |
+          set -o pipefail
           if [ "${{ github.event.inputs.build_type }}" = "release" ]; then
-            ./gradlew assembleRelease --stacktrace
+            ./gradlew assembleRelease --stacktrace --no-daemon 2>&1 | tee ../gradle-build.log
           else
-            ./gradlew assembleDebug --stacktrace
+            ./gradlew assembleDebug --stacktrace --no-daemon 2>&1 | tee ../gradle-build.log
           fi
 
+      - name: Show Gradle failure log
+        if: ${{ steps.build_apk.outcome == 'failure' }}
+        shell: bash
+        run: |
+          echo "Gradle build failed. Last 200 log lines:"
+          tail -n 200 gradle-build.log
+          exit 1
+
       - name: Rename APK
+        if: ${{ steps.build_apk.outcome == 'success' }}
         shell: bash
         run: |
           mkdir -p artifacts
@@ -156,6 +186,7 @@ jobs:
           fi
 
       - name: Upload APK
+        if: ${{ steps.build_apk.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
           name: LiviGo-${{ matrix.label }}-${{ github.event.inputs.build_type }}
