@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY
+const API_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY || 'placeholder'
 const BASE_URL = 'https://us1.locationiq.com/v1'
 
 /**

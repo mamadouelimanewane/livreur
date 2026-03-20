@@ -21,7 +21,7 @@ function ChangeView({ center, zoom }) {
   return null
 }
 
-const LOCATIONIQ_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY
+const LOCATIONIQ_KEY = import.meta.env.VITE_LOCATIONIQ_API_KEY || 'placeholder'
 
 /**
  * Composant de carte interactive utilisant Leaflet et LocationIQ.
