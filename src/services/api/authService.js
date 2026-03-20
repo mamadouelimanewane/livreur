@@ -34,6 +34,12 @@ export async function login(credentials) {
     throw new Error('missing_credentials')
   }
 
+  // Demo credentials for fallback
+  const DEMO_CREDENTIALS = {
+    email: 'admin@livigo.com',
+    password: 'admin123'
+  }
+
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: credentials.email,
@@ -49,27 +55,27 @@ export async function login(credentials) {
         avatar: null
       }
     }
-    
-    if (error && error.message !== 'Invalid URL' && !error.message.includes('fetch')) {
-      throw error;
-    }
   } catch (err) {
-    if (err.status) {
-       throw err; 
-    }
-    console.warn('Supabase login failed, using fallback demo auth');
+    console.warn('Supabase login failed, checking demo credentials')
   }
 
+  // Fallback to demo auth
   await new Promise(resolve => setTimeout(resolve, 600))
-  const userData = {
-    id: 1,
-    name: credentials.name ?? 'Admin LiviGo',
-    email: credentials.email,
-    role: 'superadmin',
-    avatar: null,
+  
+  // Check demo credentials
+  if (credentials.email === DEMO_CREDENTIALS.email && credentials.password === DEMO_CREDENTIALS.password) {
+    const userData = {
+      id: 1,
+      name: 'Admin LiviGo',
+      email: credentials.email,
+      role: 'superadmin',
+      avatar: null,
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData))
+    return userData
   }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(userData))
-  return userData
+  
+  throw new Error('Identifiants invalides')
 }
 
 export async function logout() {
