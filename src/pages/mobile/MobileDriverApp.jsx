@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FiHome, FiMapPin, FiDollarSign, FiUser, FiCheckCircle, FiXCircle, FiToggleLeft, FiToggleRight, FiTruck, FiPhone, FiStar, FiFileText, FiAlertCircle } from 'react-icons/fi'
+import { FiHome, FiMapPin, FiDollarSign, FiUser, FiCheckCircle, FiXCircle, FiToggleLeft, FiToggleRight, FiTruck, FiPhone, FiStar, FiFileText, FiAlertCircle, FiCamera } from 'react-icons/fi'
 import { MdOutlineLocalTaxi } from 'react-icons/md'
 import {
   getMobileDriverEarnings,
@@ -56,8 +56,40 @@ function getDriverMenuIcon(icon) {
   return <FiUser size={18} />
 }
 
-function HomeTab({ homeContent }) {
+import { supabase } from '../../services/api/supabaseClient'
+
+import { decodePolyline } from '../../services/api/locationService'
+import MapView from '../../components/MapView'
+
+function HomeTab({ homeContent, setHomeContent, activeRideId }) {
   const [online, setOnline] = useState(true)
+  const [routeCoords, setRouteCoords] = useState(null)
+
+  const handleUpdateStatus = async (rideId, status) => {
+    try {
+      const { error } = await supabase
+        .from('rides')
+        .update({ status })
+        .eq('id', rideId)
+      
+      if (error) throw error
+
+      setHomeContent(prev => ({ ...prev, incomingRequest: null }))
+      setRouteCoords(null)
+
+      if (status === 'accepted') alert("Course acceptée !")
+    } catch (err) {
+      console.error("Erreur mise à jour course:", err)
+    }
+  }
+
+  // Simuler le tracé quand une demande arrive
+  useEffect(() => {
+    if (homeContent?.incomingRequest) {
+      // Pour la démo, on trace un itinéraire fixe ou simulé si on n'a pas les coordonnées réelles
+      setRouteCoords(decodePolyline("_p~iF~ps|U_ulLnnqC_mqNvxq`@")) 
+    }
+  }, [homeContent?.incomingRequest])
 
   return (
     <div style={{ padding: '0 16px 24px' }}>
@@ -89,57 +121,106 @@ function HomeTab({ homeContent }) {
         </div>
       </div>
 
-      <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', marginBottom: 12 }}>
-        Aujourd'hui
-      </div>
-      <div style={{ display: 'flex', gap: 10, marginBottom: 24 }}>
-        {homeContent.todayStats.map(stat => (
-          <StatMini key={stat.label} value={stat.value} label={stat.label} color={stat.color} />
-        ))}
-      </div>
-
-      <div style={{
-        background: '#fff', borderRadius: 18, overflow: 'hidden',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.08)', marginBottom: 24,
-        border: `2px solid ${ACCENT}20`,
-      }}>
+      {homeContent.incomingRequest && (
         <div style={{
-          background: `linear-gradient(135deg, ${ACCENT}, #6366f1)`,
-          padding: '14px 18px', color: '#fff',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          background: '#fff', borderRadius: 18, overflow: 'hidden',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)', marginBottom: 24,
+          border: `2px solid ${ACCENT}20`,
+          animation: 'pulse 1.5s infinite'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <MdOutlineLocalTaxi size={18} />
-            <span style={{ fontSize: 14, fontWeight: 700 }}>{homeContent.incomingRequest.title}</span>
+          <div style={{ height: 150 }}>
+            <MapView 
+              height="150px" 
+              zoom={13} 
+              route={routeCoords}
+              markers={[
+                { position: [14.7167, -17.4677], label: "Départ" },
+                { position: [14.73, -17.45], label: "Destination" }
+              ]} 
+            />
           </div>
-          <span style={{
-            background: 'rgba(255,255,255,0.2)', padding: '3px 10px',
-            borderRadius: 10, fontSize: 12, fontWeight: 700,
-          }}>{homeContent.incomingRequest.price}</span>
+          <div style={{
+            background: `linear-gradient(135deg, ${ACCENT}, #6366f1)`,
+            padding: '14px 18px', color: '#fff',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <MdOutlineLocalTaxi size={18} />
+              <span style={{ fontSize: 14, fontWeight: 700 }}>{homeContent.incomingRequest.title}</span>
+            </div>
+            <span style={{
+              background: 'rgba(255,255,255,0.2)', padding: '3px 10px',
+              borderRadius: 10, fontSize: 12, fontWeight: 700,
+            }}>{homeContent.incomingRequest.price}</span>
+          </div>
+          <div style={{ padding: '16px 18px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: GREEN }} />
+              <span style={{ fontSize: 13, color: '#334155' }}>{homeContent.incomingRequest.pickup}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} />
+              <span style={{ fontSize: 13, color: '#334155' }}>{homeContent.incomingRequest.destination}</span>
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button 
+                onClick={() => handleUpdateStatus(homeContent.incomingRequest.db_id, 'accepted')}
+                style={{
+                  flex: 1, padding: '12px', borderRadius: 12,
+                  background: GREEN, color: '#fff', border: 'none',
+                  fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                }}>Accepter</button>
+              <button 
+                onClick={() => handleUpdateStatus(homeContent.incomingRequest.db_id, 'rejected')}
+                style={{
+                  flex: 1, padding: '12px', borderRadius: 12,
+                  background: '#fee2e2', color: '#ef4444', border: 'none',
+                  fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                }}>Refuser</button>
+            </div>
+          </div>
         </div>
-        <div style={{ padding: '16px 18px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: GREEN }} />
-            <span style={{ fontSize: 13, color: '#334155' }}>{homeContent.incomingRequest.pickup}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} />
-            <span style={{ fontSize: 13, color: '#334155' }}>{homeContent.incomingRequest.destination}</span>
+      )}
+
+      <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', marginBottom: 12 }}>
+        Tableau de bord actif
+      </div>
+      {activeRideId && (
+        <div style={{
+          background: '#fff', borderRadius: 20, padding: '16px',
+          marginBottom: 24, boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
+          border: `1px solid ${ACCENT}20`,
+          position: 'relative', overflow: 'hidden'
+        }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', background: ACCENT }} />
+          <div style={{ fontSize: 13, fontWeight: 700, color: DARK, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: ACCENT, animation: 'pulse 1.5s infinite' }} />
+            COURSE EN COURS
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <button style={{
-              flex: 1, padding: '12px', borderRadius: 12,
-              background: GREEN, color: '#fff', border: 'none',
-              fontSize: 14, fontWeight: 700, cursor: 'pointer',
-            }}>Accepter</button>
-            <button style={{
-              flex: 1, padding: '12px', borderRadius: 12,
-              background: '#fee2e2', color: '#ef4444', border: 'none',
-              fontSize: 14, fontWeight: 700, cursor: 'pointer',
-            }}>Refuser</button>
+             <button 
+              onClick={() => alert("LiviPro : Caméra activée... Photo du colis enregistrée !")}
+              style={{
+                background: '#f8fafc', border: `1px dashed ${ACCENT}`, borderRadius: 12,
+                flex: 1, padding: '12px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                fontSize: 12, color: '#475569', fontWeight: 600, cursor: 'pointer'
+              }}
+             >
+              <FiCamera size={16} /> LiviPro Photo
+             </button>
+             <button 
+              onClick={() => handleUpdateStatus(activeRideId, 'completed')}
+              style={{
+                background: GREEN, color: '#fff', border: 'none', borderRadius: 12,
+                flex: 1, padding: '12px 8px', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                boxShadow: `0 4px 12px ${GREEN}40`
+              }}
+             >
+              Terminer
+             </button>
           </div>
         </div>
-      </div>
+      )}
 
       <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', marginBottom: 12 }}>
         Courses récentes
@@ -305,9 +386,12 @@ function ErrorPanel({ message }) {
   )
 }
 
+import ChatOverlay from '../../components/ChatOverlay'
+
 export default function MobileDriverApp() {
   const [tab, setTab] = useState('home')
   const [homeContent, setHomeContent] = useState(null)
+  const [activeRideId, setActiveRideId] = useState(null)
   const [earnings, setEarnings] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -343,9 +427,44 @@ export default function MobileDriverApp() {
     }
 
     loadMobileDriverApp()
+    
+    // Mise à jour de la position GPS du conducteur (Toutes les 10s)
+    const locationInterval = setInterval(async () => {
+      if (isMounted) {
+        // En prod, utiliser navigator.geolocation.getCurrentPosition
+        // Ici on simule un petit mouvement autour de Dakar pour la démo
+        const lat = 14.7167 + (Math.random() - 0.5) * 0.01
+        const lon = -17.4677 + (Math.random() - 0.5) * 0.01
+
+        console.log("Mise à jour GPS conducteur:", lat, lon)
+        
+        // Mettre à jour dans Supabase (table 'drivers' créée précédemment)
+        await supabase
+          .from('drivers')
+          .update({ 
+            last_location: `(${lat},${lon})`,
+            updated_at: new Date().toISOString()
+          })
+          .match({ id: 'DRIVER_ID_SIMULATED' }) // Remplacez par l'ID réel du conducteur
+      }
+    }, 10000)
+
+    // Écoute des mises à jour des courses pour ce conducteur
+    const subscription = supabase
+      .channel('public:driver_rides')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rides' }, payload => {
+        if (payload.new.status === 'accepted') {
+          setActiveRideId(payload.new.id)
+        } else if (payload.new.status === 'completed' || payload.new.status === 'cancelled') {
+          setActiveRideId(null)
+        }
+      })
+      .subscribe()
 
     return () => {
       isMounted = false
+      clearInterval(locationInterval)
+      supabase.removeChannel(subscription)
     }
   }, [])
 
@@ -357,6 +476,17 @@ export default function MobileDriverApp() {
       background: BG, display: 'flex', flexDirection: 'column',
       fontFamily: 'Inter, -apple-system, sans-serif',
     }}>
+      <style>{`
+        @keyframes pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.02); border-color: #4680ff; }
+          100% { transform: scale(1); }
+        }
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+      `}</style>
       <div style={{
         background: DARK, padding: '10px 20px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -376,7 +506,7 @@ export default function MobileDriverApp() {
           <ErrorPanel message={error} />
         ) : (
           <>
-            {tab === 'home' && homeContent && <HomeTab homeContent={homeContent} />}
+            {tab === 'home' && homeContent && <HomeTab homeContent={homeContent} setHomeContent={setHomeContent} activeRideId={activeRideId} />}
             {tab === 'earnings' && earnings && <EarningsTab earnings={earnings} />}
             {tab === 'profile' && profile && <ProfileTab profile={profile} />}
           </>
@@ -393,6 +523,13 @@ export default function MobileDriverApp() {
         <BottomTab icon={<FiDollarSign size={20} />} label="Gains" active={tab === 'earnings'} onClick={() => setTab('earnings')} />
         <BottomTab icon={<FiUser size={20} />} label="Profil" active={tab === 'profile'} onClick={() => setTab('profile')} />
       </div>
+
+      {activeRideId && (
+        <ChatOverlay 
+          rideId={String(activeRideId)} 
+          currentUser="driver" 
+        />
+      )}
     </div>
   )
 }

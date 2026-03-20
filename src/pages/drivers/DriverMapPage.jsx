@@ -1,141 +1,287 @@
-import { useState } from 'react'
-import { FiMap, FiRefreshCw } from 'react-icons/fi'
-import { PageHeader, Btn, Select } from '../../components/PageLayout'
+import { useEffect, useRef, useState } from 'react'
+import { FiRefreshCw, FiFilter, FiWifi, FiWifiOff } from 'react-icons/fi'
+import { supabase } from '../../services/api/supabaseClient'
 
-const onlineDrivers = [
-  { id: 'DRV-001', name: 'Oumar Sall', zone: 'Dakar Centre', status: 'En ligne', vehicle: 'Moto', rides: 8, lat: '14.7167', lng: '-17.4677' },
-  { id: 'DRV-003', name: 'Ibrahima Ba', zone: 'Parcelles', status: 'En course', vehicle: 'Moto', rides: 12, lat: '14.7500', lng: '-17.4400' },
-  { id: 'DRV-005', name: 'Abdoulaye Mbaye', zone: 'Dakar Sud', status: 'En ligne', vehicle: 'Voiture', rides: 4, lat: '14.6900', lng: '-17.4800' },
+// Données mock de conducteurs avec coordonnées GPS Dakar
+const MOCK_DRIVER_POSITIONS = [
+  { id: 'DRV-001', name: 'Oumar Sall',      lat: 14.6937, lng: -17.4441, status: 'online',  vehicle: 'Moto',    zone: 'Dakar Centre', rides: 48, rating: 4.8 },
+  { id: 'DRV-003', name: 'Ibrahima Ba',     lat: 14.6892, lng: -17.4384, status: 'online',  vehicle: 'Moto',    zone: 'Plateau',      rides: 61, rating: 4.9 },
+  { id: 'DRV-005', name: 'Abdoulaye Mbaye', lat: 14.6821, lng: -17.4625, status: 'online',  vehicle: 'Voiture', zone: 'Dakar Centre', rides: 27, rating: 4.6 },
+  { id: 'DRV-007', name: 'Mamadou Diallo',  lat: 14.7012, lng: -17.4556, status: 'busy',    vehicle: 'Moto',    zone: 'Parcelles',    rides: 35, rating: 4.7 },
+  { id: 'DRV-009', name: 'Fatou Sarr',      lat: 14.7156, lng: -17.4473, status: 'busy',    vehicle: 'Voiture', zone: 'Guédiawaye',   rides: 19, rating: 4.4 },
+  { id: 'DRV-011', name: 'Alioune Ndiaye',  lat: 14.6745, lng: -17.4318, status: 'offline', vehicle: 'Moto',    zone: 'Plateau',      rides: 42, rating: 4.5 },
 ]
 
-const statusStyle = {
-  'En ligne': { color: '#2ed8a3', dot: '#2ed8a3' },
-  'En course': { color: '#4680ff', dot: '#4680ff' },
-  'Hors ligne': { color: '#718096', dot: '#a0aec0' },
+const STATUS_CONFIG = {
+  online:  { label: 'En ligne',         color: '#22c55e', emoji: '🟢' },
+  busy:    { label: 'En course',        color: '#f59e0b', emoji: '🟡' },
+  offline: { label: 'Hors ligne',       color: '#94a3b8', emoji: '⚫' },
 }
 
 export default function DriverMapPage() {
-  const [filter, setFilter] = useState('Tous')
+  const mapRef    = useRef(null)
+  const leafletRef = useRef(null)    // Instance Leaflet map
+  const markersRef = useRef({})      // { driverId: marker }
+  const [filter, setFilter]     = useState('all')
+  const [drivers, setDrivers]   = useState(MOCK_DRIVER_POSITIONS)
+  const [selected, setSelected] = useState(null)
+  const [connected, setConnected] = useState(false)
+  const [loading, setLoading]   = useState(true)
+
+  /* ── Initialisation de la carte Leaflet ── */
+  useEffect(() => {
+    // Import dynamique de Leaflet (déjà installé dans le projet)
+    import('leaflet').then(L => {
+      if (leafletRef.current) return // déjà initialisée
+
+      // Fix icônes Leaflet avec Vite
+      delete L.Icon.Default.prototype._getIconUrl
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl:       'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl:     'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      })
+
+      const map = L.map(mapRef.current, {
+        center: [14.6928, -17.4467], // Dakar
+        zoom: 13,
+        zoomControl: true,
+      })
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 18,
+      }).addTo(map)
+
+      leafletRef.current = map
+      setLoading(false)
+
+      // Placer les marqueurs initiaux
+      placeMarkers(L, map, MOCK_DRIVER_POSITIONS)
+    }).catch(() => {
+      setLoading(false)
+    })
+
+    return () => {
+      if (leafletRef.current) {
+        leafletRef.current.remove()
+        leafletRef.current = null
+      }
+    }
+  }, [])
+
+  /* ── Placement des marqueurs ── */
+  function placeMarkers(L, map, driversData) {
+    // Nettoyage des anciens marqueurs
+    Object.values(markersRef.current).forEach(m => m.remove())
+    markersRef.current = {}
+
+    driversData.forEach(driver => {
+      const cfg = STATUS_CONFIG[driver.status]
+      const icon = L.divIcon({
+        className: '',
+        html: `
+          <div style="
+            width:36px; height:36px; border-radius:50%;
+            background:${cfg.color}; color:#fff;
+            display:flex; align-items:center; justify-content:center;
+            font-size:16px; font-weight:700;
+            border:3px solid #fff;
+            box-shadow:0 2px 10px rgba(0,0,0,0.3);
+            cursor:pointer;
+          ">
+            ${driver.vehicle === 'Moto' ? '🏍' : '🚗'}
+          </div>
+          <div style="
+            position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
+            width:0; height:0;
+            border-left:6px solid transparent;
+            border-right:6px solid transparent;
+            border-top:8px solid ${cfg.color};
+          "></div>
+        `,
+        iconSize: [36, 44],
+        iconAnchor: [18, 44],
+      })
+
+      const marker = L.marker([driver.lat, driver.lng], { icon })
+        .addTo(map)
+        .on('click', () => setSelected(driver))
+
+      marker.bindTooltip(`
+        <strong>${driver.name}</strong><br/>
+        ${cfg.emoji} ${cfg.label} · ${driver.vehicle}<br/>
+        ⭐ ${driver.rating} · ${driver.rides} courses
+      `, { sticky: true })
+
+      markersRef.current[driver.id] = marker
+    })
+  }
+
+  /* ── Mise à jour des marqueurs quand le filtre change ── */
+  useEffect(() => {
+    if (!leafletRef.current) return
+    import('leaflet').then(L => {
+      const filtered = filter === 'all' ? drivers : drivers.filter(d => d.status === filter)
+      Object.values(markersRef.current).forEach(m => m.remove())
+      markersRef.current = {}
+      placeMarkers(L, leafletRef.current, filtered)
+    })
+  }, [filter, drivers])
+
+  /* ── Supabase Realtime ── */
+  useEffect(() => {
+    try {
+      const channel = supabase.channel('driver-locations')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'drivers' }, payload => {
+          const d = payload.new
+          if (!d.last_lat || !d.last_lng) return
+          setConnected(true)
+          setDrivers(prev => {
+            const existing = prev.find(p => p.id === d.id)
+            if (existing) {
+              return prev.map(p => p.id === d.id ? { ...p, lat: d.last_lat, lng: d.last_lng, status: d.is_online ? 'online' : 'offline' } : p)
+            } else {
+              return [...prev, { id: d.id, name: d.name || 'Inconnu', lat: d.last_lat, lng: d.last_lng, status: d.is_online ? 'online' : 'offline', vehicle: d.vehicle || 'Moto', zone: d.zone || '—', rides: 0, rating: 0 }]
+            }
+          })
+          // Déplacer le marqueur sur la carte
+          if (leafletRef.current && markersRef.current[d.id]) {
+            markersRef.current[d.id].setLatLng([d.last_lat, d.last_lng])
+          }
+        })
+        .subscribe()
+      return () => supabase.removeChannel(channel)
+    } catch { /* offline */ }
+  }, [])
+
+  const counts = {
+    all:     drivers.length,
+    online:  drivers.filter(d => d.status === 'online').length,
+    busy:    drivers.filter(d => d.status === 'busy').length,
+    offline: drivers.filter(d => d.status === 'offline').length,
+  }
 
   return (
     <div>
-      <PageHeader title="Carte des conducteurs" icon={<FiMap />}>
-        <Btn color="#4680ff"><FiRefreshCw size={14} /> Actualiser</Btn>
-      </PageHeader>
-
-      <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
-        {[
-          { label: 'En ligne', count: 2, color: '#2ed8a3', bg: '#e6faf4' },
-          { label: 'En course', count: 1, color: '#4680ff', bg: '#ebf4ff' },
-          { label: 'Hors ligne', count: 2, color: '#718096', bg: '#f7f9fb' },
-        ].map((s, i) => (
-          <div key={i} style={{
-            background: '#fff',
-            borderRadius: 8,
-            padding: '12px 20px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            cursor: 'pointer',
-            border: filter === s.label ? `2px solid ${s.color}` : '2px solid transparent',
-          }}
-            onClick={() => setFilter(filter === s.label ? 'Tous' : s.label)}
-          >
-            <div style={{ width: 12, height: 12, borderRadius: '50%', background: s.color }} />
-            <span style={{ fontSize: 13, fontWeight: 600, color: s.color }}>{s.count} {s.label}</span>
-          </div>
-        ))}
-        <Select value={filter} onChange={e => setFilter(e.target.value)} options={['Tous', 'En ligne', 'En course', 'Hors ligne']} />
-      </div>
-
-      {/* Map placeholder */}
-      <div style={{
-        background: '#e8f0fe',
-        borderRadius: 8,
-        height: 450,
-        position: 'relative',
-        overflow: 'hidden',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      }}>
-        {/* Fake map grid */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: 'linear-gradient(rgba(70,128,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(70,128,255,0.07) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }} />
-
-        {/* Map label */}
-        <div style={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)',
-          textAlign: 'center',
-          color: '#4680ff',
-        }}>
-          <FiMap size={48} style={{ opacity: 0.3 }} />
-          <div style={{ fontSize: 14, color: '#718096', marginTop: 8 }}>
-            Carte interactive — Dakar, Sénégal<br />
-            <span style={{ fontSize: 12, color: '#a0aec0' }}>Intégrez Google Maps ou Leaflet ici</span>
-          </div>
-        </div>
-
-        {/* Driver pins */}
-        {onlineDrivers.map((d, i) => (
-          <div key={d.id} style={{
-            position: 'absolute',
-            top: `${30 + i * 20}%`,
-            left: `${25 + i * 20}%`,
-            background: statusStyle[d.status].dot,
-            color: '#fff',
-            borderRadius: '50% 50% 50% 0',
-            width: 36,
-            height: 36,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 11,
-            fontWeight: 700,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-            transform: 'rotate(-45deg)',
-            cursor: 'pointer',
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: '#1e293b', margin: 0 }}>🗺️ Carte des conducteurs</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{
+            display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 12,
+            background: connected ? '#f0fdf4' : '#fffbeb',
+            color: connected ? '#166534' : '#92400e',
+            border: `1px solid ${connected ? '#bbf7d0' : '#fde68a'}`,
           }}>
-            <span style={{ transform: 'rotate(45deg)' }}>{d.name.charAt(0)}</span>
-          </div>
+            {connected ? <FiWifi size={11} /> : <FiWifiOff size={11} />}
+            {connected ? 'Live GPS' : 'Simulation'}
+          </span>
+        </div>
+      </div>
+
+      {/* Filtres */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        {[
+          { key: 'all',     label: 'Tous',       color: '#4680ff' },
+          { key: 'online',  label: '🟢 En ligne', color: '#22c55e' },
+          { key: 'busy',    label: '🟡 En course', color: '#f59e0b' },
+          { key: 'offline', label: '⚫ Hors ligne', color: '#94a3b8' },
+        ].map(f => (
+          <button key={f.key} onClick={() => setFilter(f.key)} style={{
+            padding: '7px 16px', borderRadius: 20,
+            border: `1px solid ${filter === f.key ? f.color : '#e2e8f0'}`,
+            background: filter === f.key ? f.color : '#fff',
+            color: filter === f.key ? '#fff' : '#475569',
+            fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
+          }}>
+            {f.label} ({counts[f.key]})
+          </button>
         ))}
       </div>
 
-      {/* Driver list sidebar */}
-      <div style={{ marginTop: 16, background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: 16 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 700, color: '#2d3748', margin: '0 0 12px 0' }}>Conducteurs actifs</h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-          {onlineDrivers.map(d => (
-            <div key={d.id} style={{
-              background: '#f6f7fb',
-              borderRadius: 8,
-              padding: '10px 14px',
-              minWidth: 200,
-              display: 'flex',
-              gap: 10,
-              alignItems: 'center',
-            }}>
-              <div style={{
-                width: 36, height: 36, borderRadius: '50%',
-                background: statusStyle[d.status].dot,
-                color: '#fff',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: 700, fontSize: 14, flexShrink: 0,
-              }}>
-                {d.name.charAt(0)}
-              </div>
-              <div>
-                <div style={{ fontWeight: 600, fontSize: 13, color: '#2d3748' }}>{d.name}</div>
-                <div style={{ fontSize: 11, color: '#718096' }}>{d.zone} · {d.vehicle}</div>
-                <div style={{ fontSize: 11, color: statusStyle[d.status].color, fontWeight: 600 }}>{d.status} · {d.rides} courses</div>
-              </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 16 }}>
+        {/* Carte */}
+        <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.1)' }}>
+          <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+          <div ref={mapRef} style={{ height: 520, background: '#e2e8f0' }} />
+          {loading && (
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', fontSize: 13, color: '#64748b' }}>
+              Chargement de la carte…
             </div>
-          ))}
+          )}
+        </div>
+
+        {/* Liste conducteurs */}
+        <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 18px', borderBottom: '1px solid #f1f5f9', fontWeight: 700, fontSize: 14, color: '#1e293b' }}>
+            Conducteurs ({(filter === 'all' ? drivers : drivers.filter(d => d.status === filter)).length})
+          </div>
+          <div style={{ overflowY: 'auto', maxHeight: 468 }}>
+            {(filter === 'all' ? drivers : drivers.filter(d => d.status === filter)).map(d => {
+              const cfg = STATUS_CONFIG[d.status]
+              const isSelected = selected?.id === d.id
+              return (
+                <div key={d.id}
+                  onClick={() => {
+                    setSelected(d)
+                    if (leafletRef.current && markersRef.current[d.id]) {
+                      leafletRef.current.setView([d.lat, d.lng], 15)
+                    }
+                  }}
+                  style={{
+                    padding: '12px 16px', cursor: 'pointer', transition: 'background 0.12s',
+                    background: isSelected ? '#f0f4ff' : 'transparent',
+                    borderLeft: isSelected ? '3px solid #4680ff' : '3px solid transparent',
+                    borderBottom: '1px solid #f8fafc',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: '50%',
+                      background: cfg.color + '20',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 16, flexShrink: 0,
+                      border: `2px solid ${cfg.color}`,
+                    }}>
+                      {d.vehicle === 'Moto' ? '🏍' : '🚗'}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>{d.name}</div>
+                      <div style={{ fontSize: 11, color: '#94a3b8' }}>{d.zone} · ⭐ {d.rating}</div>
+                    </div>
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, padding: '3px 8px',
+                      borderRadius: 10, background: cfg.color + '15', color: cfg.color,
+                    }}>
+                      {cfg.label}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
+
+      {/* Détail conducteur sélectionné */}
+      {selected && (
+        <div style={{
+          marginTop: 16, background: '#fff', borderRadius: 14, padding: '16px 20px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)', borderLeft: '4px solid #4680ff',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#1e293b' }}>{selected.name}</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+              {selected.vehicle} · {selected.zone} · ⭐ {selected.rating} · {selected.rides} courses
+            </div>
+            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+              GPS: {selected.lat.toFixed(4)}, {selected.lng.toFixed(4)}
+            </div>
+          </div>
+          <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: 20, lineHeight: 1 }}>×</button>
+        </div>
+      )}
     </div>
   )
 }

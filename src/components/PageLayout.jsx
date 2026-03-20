@@ -1,4 +1,22 @@
 // Shared page layout component used across all admin pages
+
+export default function PageLayout({ title, subtitle, actions, children }) {
+  return (
+    <div style={{ padding: '0 0 24px 0' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1a1d2e', margin: 0 }}>{title}</h1>
+          {subtitle && <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{subtitle}</div>}
+        </div>
+        {actions && <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>{actions}</div>}
+      </div>
+      {/* Content */}
+      <div>{children}</div>
+    </div>
+  )
+}
+
 export function PageHeader({ title, icon, children }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>

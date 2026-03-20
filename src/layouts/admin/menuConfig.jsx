@@ -3,6 +3,7 @@ import {
   FiUser, FiShield, FiTag,
   FiMessageSquare, FiFileText, FiDollarSign,
   FiSend, FiAlertCircle, FiCreditCard, FiSliders,
+  FiTrendingUp, FiActivity, FiRadio,
 } from 'react-icons/fi'
 import {
   MdOutlineLocalTaxi, MdOutlineDeliveryDining,
@@ -190,6 +191,17 @@ export const menu = [
     ],
   },
   { id: 'sep-reports', type: 'section', label: 'RAPPORT ET GRAPHIQUES' },
+  {
+    id: 'rapports',
+    label: 'Rapports & Analytics',
+    icon: <FiTrendingUp size={16} />,
+    children: [
+      { id: 'rpt-financial',  label: 'Rapport financier',     path: '/reports/financial'  },
+      { id: 'rpt-operations', label: 'Rapport opérationnel',  path: '/reports/operations' },
+      { id: 'rpt-drivers',   label: 'Rapport conducteurs',   path: '/reports/drivers'    },
+      { id: 'rpt-live',      label: '🔴 Tableau de bord live', path: '/reports/live'     },
+    ],
+  },
   { id: 'sep-params', type: 'section', label: 'PARAM\u00c8TRE' },
   {
     id: 'sous-admin',

@@ -23,7 +23,15 @@ import ExpiringDocsPage from './pages/drivers/ExpiringDocsPage'
 import ExpiredDocsPage from './pages/drivers/ExpiredDocsPage'
 import VehiclesPage from './pages/drivers/VehiclesPage'
 import DriverMapPage from './pages/drivers/DriverMapPage'
+import DriverDetailPage from './pages/drivers/DriverDetailPage'
 import HeatmapPage from './pages/drivers/HeatmapPage'
+
+// Reports
+import ReportsLayout from './pages/reports/ReportsLayout'
+import FinancialReportPage from './pages/reports/FinancialReportPage'
+import OperationsReportPage from './pages/reports/OperationsReportPage'
+import DriversReportPage from './pages/reports/DriversReportPage'
+import LiveDashboardPage from './pages/reports/LiveDashboardPage'
 
 // Delivery
 import ProductsPage from './pages/delivery/ProductsPage'
@@ -64,6 +72,7 @@ import WalletRechargePage from './pages/content/WalletRechargePage'
 
 // Transactions
 import CashoutPage from './pages/transactions/CashoutPage'
+import MobileMoneyTestPage from './pages/transactions/MobileMoneyTestPage'
 
 // Settings
 import AdminsPage from './pages/settings/AdminsPage'
@@ -83,6 +92,11 @@ import PaymentMethodPage from './pages/settings/PaymentMethodPage'
 // Mobile Apps
 import MobileUserApp from './pages/mobile/MobileUserApp'
 import MobileDriverApp from './pages/mobile/MobileDriverApp'
+
+// New Features - Additional Pages
+import AnalyticsPage from './pages/reports/AnalyticsPage'
+import ScheduledRidesPage from './pages/setup/ScheduledRidesPage'
+import DriverBonusesPage from './pages/drivers/DriverBonusesPage'
 
 /* --------------------------------------------------
    Protected route wrapper
@@ -133,6 +147,7 @@ export default function App() {
         <Route path="/drivers/vehicles" element={<VehiclesPage />} />
         <Route path="/drivers/map" element={<DriverMapPage />} />
         <Route path="/drivers/heatmap" element={<HeatmapPage />} />
+        <Route path="/drivers/:driverId" element={<DriverDetailPage />} />
 
         {/* Delivery */}
         <Route path="/delivery/products" element={<ProductsPage />} />
@@ -183,6 +198,7 @@ export default function App() {
 
         {/* Transactions */}
         <Route path="/transactions/cashout" element={<CashoutPage />} />
+        <Route path="/transactions/mobile-money-test" element={<MobileMoneyTestPage />} />
 
         {/* Settings */}
         <Route path="/settings/admins" element={<AdminsPage />} />
@@ -198,6 +214,20 @@ export default function App() {
         <Route path="/settings/push-notifications" element={<PushNotificationsPage />} />
         <Route path="/settings/cancel-reasons" element={<CancelReasonsPage />} />
         <Route path="/settings/payment-method" element={<PaymentMethodPage />} />
+
+        {/* Reports */}
+        <Route path="/reports" element={<ReportsLayout />}>
+          <Route index element={<Navigate to="/reports/financial" replace />} />
+          <Route path="financial"   element={<FinancialReportPage />} />
+          <Route path="operations"  element={<OperationsReportPage />} />
+          <Route path="drivers"     element={<DriversReportPage />} />
+          <Route path="live"        element={<LiveDashboardPage />} />
+        </Route>
+
+        {/* New Features */}
+        <Route path="/reports/analytics" element={<AnalyticsPage />} />
+        <Route path="/setup/scheduled-rides" element={<ScheduledRidesPage />} />
+        <Route path="/drivers/bonuses" element={<DriverBonusesPage />} />
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
