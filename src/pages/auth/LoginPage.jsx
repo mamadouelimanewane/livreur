@@ -1,9 +1,42 @@
 import { useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../../context/useAuth'
-import { FiShield, FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi'
+import { FiShield, FiMail, FiLock, FiEye, FiEyeOff, FiUser, FiTruck } from 'react-icons/fi'
 
-const BRAND_GRADIENT = 'linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%)'
+// Configuration par type d'application
+const APP_CONFIG = {
+  admin: {
+    title: 'Panneau d\'administration',
+    gradient: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%)', // Bleu profond
+    accentColor: '#2563eb',
+    placeholder: 'admin@livigo.com',
+    redirect: '/dashboard',
+    icon: FiShield,
+    role: 'Administrateur'
+  },
+  user: {
+    title: 'Application Client',
+    gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', // Vert
+    accentColor: '#10b981',
+    placeholder: 'user@livigo.com',
+    redirect: '/mobile/user',
+    icon: FiUser,
+    role: 'Client'
+  },
+  driver: {
+    title: 'Application Conducteur',
+    gradient: 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)', // Rouge
+    accentColor: '#ef4444',
+    placeholder: 'driver@livigo.com',
+    redirect: '/mobile/driver',
+    icon: FiTruck,
+    role: 'Conducteur'
+  }
+}
+
+// Détecter le type d'application
+const APP_TARGET = import.meta.env.VITE_APP_TARGET || 'admin'
+const config = APP_CONFIG[APP_TARGET] || APP_CONFIG.admin
 
 export default function LoginPage() {
   const { user, login } = useAuth()
@@ -14,7 +47,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  if (user) return <Navigate to="/dashboard" replace />
+  if (user) return <Navigate to={config.redirect} replace />
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -25,8 +58,8 @@ export default function LoginPage() {
     }
     setLoading(true)
     try {
-      await login({ email, password, name: 'Admin LiviGo' })
-      navigate('/dashboard', { replace: true })
+      await login({ email, password })
+      navigate(config.redirect, { replace: true })
     } catch {
       setError('Identifiants invalides.')
     } finally {
@@ -57,7 +90,7 @@ export default function LoginPage() {
       >
         <div
           style={{
-            background: BRAND_GRADIENT,
+            background: config.gradient,
             padding: '36px 40px 28px',
             textAlign: 'center',
           }}
@@ -74,7 +107,7 @@ export default function LoginPage() {
               justifyContent: 'center',
             }}
           >
-            <FiShield size={30} color="#fff" />
+            <config.icon size={30} color="#fff" />
           </div>
           <h1
             style={{
@@ -89,12 +122,13 @@ export default function LoginPage() {
           </h1>
           <p
             style={{
-              color: 'rgba(255,255,255,0.75)',
+              color: 'rgba(255,255,255,0.85)',
               fontSize: 13,
               marginTop: 6,
+              fontWeight: 600,
             }}
           >
-            Panneau d'administration
+            {config.title}
           </p>
         </div>
 
@@ -113,13 +147,14 @@ export default function LoginPage() {
           {error && (
             <div
               style={{
-                background: '#fff5f5',
-                border: '1px solid #fed7d7',
+                background: APP_TARGET === 'driver' ? '#fef2f2' : APP_TARGET === 'user' ? '#ecfdf5' : '#fff5f5',
+                border: `1px solid ${APP_TARGET === 'driver' ? '#fecaca' : APP_TARGET === 'user' ? '#a7f3d0' : '#fed7d7'}`,
                 borderRadius: 8,
                 padding: '10px 14px',
-                color: '#c53030',
+                color: APP_TARGET === 'driver' ? '#dc2626' : APP_TARGET === 'user' ? '#059669' : '#c53030',
                 fontSize: 13,
                 marginBottom: 18,
+                fontWeight: 500,
               }}
             >
               {error}
@@ -156,7 +191,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="admin@livigo.com"
+                placeholder={config.placeholder}
                 autoComplete="email"
                 style={{
                   width: '100%',
@@ -169,7 +204,7 @@ export default function LoginPage() {
                   transition: 'border-color 0.15s',
                   boxSizing: 'border-box',
                 }}
-                onFocus={e => { e.target.style.borderColor = '#4e54c8' }}
+                onFocus={e => { e.target.style.borderColor = config.accentColor }}
                 onBlur={e => { e.target.style.borderColor = '#e2e8f0' }}
               />
             </div>
@@ -218,7 +253,7 @@ export default function LoginPage() {
                   transition: 'border-color 0.15s',
                   boxSizing: 'border-box',
                 }}
-                onFocus={e => { e.target.style.borderColor = '#4e54c8' }}
+                onFocus={e => { e.target.style.borderColor = config.accentColor }}
                 onBlur={e => { e.target.style.borderColor = '#e2e8f0' }}
               />
               <button
@@ -249,7 +284,7 @@ export default function LoginPage() {
               width: '100%',
               padding: '12px',
               borderRadius: 10,
-              background: loading ? '#a0aec0' : BRAND_GRADIENT,
+              background: loading ? '#a0aec0' : config.gradient,
               color: '#fff',
               fontWeight: 700,
               fontSize: 15,
