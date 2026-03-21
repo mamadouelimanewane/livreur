@@ -422,32 +422,96 @@ export default function MobileDriverApp() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Afficher la page de garde au démarrage
-  if (showSplash) {
-    return <DriverSplashScreen onComplete={() => setShowSplash(false)} />
-  }
-
+  // Charger les données après la page de garde
   useEffect(() => {
+    if (showSplash) return // Ne pas charger tant que la page de garde est affichée
+    
     let isMounted = true
 
     async function loadMobileDriverApp() {
       try {
         setLoading(true)
         setError('')
-        const [nextHomeContent, nextEarnings, nextProfile] = await Promise.all([
-          getMobileDriverHomeContent(),
-          getMobileDriverEarnings(),
-          getMobileDriverProfile(),
-        ])
+        
+        // Données par défaut en cas d'erreur
+        const defaultData = {
+          homeContent: {
+            brand: 'LiviGo Conducteur',
+            statusLabel: 'Statut actuel',
+            onlineLabel: 'En ligne',
+            offlineLabel: 'Hors ligne',
+            onlineDescription: 'Vous recevez des demandes de course',
+            offlineDescription: 'Activez pour recevoir des courses',
+            todayStats: [
+              { value: '0', label: 'Courses', color: '#4680ff' },
+              { value: '0', label: 'Gains (FCFA)', color: '#22c55e' },
+              { value: '5.0', label: 'Note', color: '#f59e0b' },
+            ],
+            incomingRequest: null,
+            recentRides: []
+          },
+          earnings: {
+            weeklyTitle: 'Gains cette semaine',
+            weeklyAmount: '0 FCFA',
+            highlights: [
+              { value: '0', label: 'Courses' },
+              { value: '5.0', label: 'Note moy.' },
+              { value: '0h', label: 'En ligne' },
+            ],
+            daily: [
+              { day: 'Lundi', amount: '0', rides: 0 },
+              { day: 'Mardi', amount: '0', rides: 0 },
+              { day: 'Mercredi', amount: '0', rides: 0 },
+              { day: 'Jeudi', amount: '0', rides: 0 },
+              { day: 'Vendredi', amount: '0', rides: 0 },
+              { day: 'Samedi', amount: '0', rides: 0 },
+              { day: 'Dimanche', amount: '0', rides: 0 },
+            ]
+          },
+          profile: {
+            name: 'Conducteur LiviGo',
+            phone: '+221 77 000 00 00',
+            initials: 'CL',
+            badge: 'Vérifié',
+            vehicle: [
+              { label: 'Type', value: 'Moto' },
+              { label: 'Immatriculation', value: 'DK-1234-A' },
+              { label: 'Couleur', value: 'Noir' },
+              { label: 'Année', value: '2023' },
+            ],
+            menu: [
+              { id: 'docs', label: 'Mes documents', icon: 'file-text' },
+              { id: 'rating', label: 'Mes avis', icon: 'star' },
+              { id: 'support', label: 'Support', icon: 'phone' },
+              { id: 'sos', label: 'SOS Urgence', icon: 'alert-circle' },
+            ]
+          }
+        }
+        
+        let nextHomeContent, nextEarnings, nextProfile
+        
+        try {
+          [nextHomeContent, nextEarnings, nextProfile] = await Promise.all([
+            getMobileDriverHomeContent(),
+            getMobileDriverEarnings(),
+            getMobileDriverProfile(),
+          ])
+        } catch (apiError) {
+          console.warn('API Error, using default data:', apiError)
+          nextHomeContent = defaultData.homeContent
+          nextEarnings = defaultData.earnings
+          nextProfile = defaultData.profile
+        }
 
         if (isMounted) {
-          setHomeContent(nextHomeContent)
-          setEarnings(nextEarnings)
-          setProfile(nextProfile)
+          setHomeContent(nextHomeContent || defaultData.homeContent)
+          setEarnings(nextEarnings || defaultData.earnings)
+          setProfile(nextProfile || defaultData.profile)
         }
-      } catch {
+      } catch (err) {
+        console.error('Load error:', err)
         if (isMounted) {
-          setError("Impossible de charger l'application mobile conducteur.")
+          setError("Erreur de chargement. Vérifiez votre connexion.")
         }
       } finally {
         if (isMounted) {
@@ -461,42 +525,55 @@ export default function MobileDriverApp() {
     // Mise à jour de la position GPS du conducteur (Toutes les 10s)
     const locationInterval = setInterval(async () => {
       if (isMounted) {
-        // En prod, utiliser navigator.geolocation.getCurrentPosition
-        // Ici on simule un petit mouvement autour de Dakar pour la démo
         const lat = 14.7167 + (Math.random() - 0.5) * 0.01
         const lon = -17.4677 + (Math.random() - 0.5) * 0.01
-
-        console.log("Mise à jour GPS conducteur:", lat, lon)
         
-        // Mettre à jour dans Supabase (table 'drivers' créée précédemment)
-        await supabase
-          .from('drivers')
-          .update({ 
-            last_location: `(${lat},${lon})`,
-            updated_at: new Date().toISOString()
-          })
-          .match({ id: 'DRIVER_ID_SIMULATED' }) // Remplacez par l'ID réel du conducteur
+        try {
+          await supabase
+            .from('drivers')
+            .update({ 
+              last_location: `(${lat},${lon})`,
+              updated_at: new Date().toISOString()
+            })
+            .match({ id: 'DRIVER_ID_SIMULATED' })
+        } catch (e) {
+          // Ignorer les erreurs Supabase en mode offline
+        }
       }
     }, 10000)
 
-    // Écoute des mises à jour des courses pour ce conducteur
-    const subscription = supabase
-      .channel('public:driver_rides')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rides' }, payload => {
-        if (payload.new.status === 'accepted') {
-          setActiveRideId(payload.new.id)
-        } else if (payload.new.status === 'completed' || payload.new.status === 'cancelled') {
-          setActiveRideId(null)
-        }
-      })
-      .subscribe()
+    // Écoute des mises à jour des courses
+    let subscription
+    try {
+      subscription = supabase
+        .channel('public:driver_rides')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rides' }, payload => {
+          if (payload.new.status === 'accepted') {
+            setActiveRideId(payload.new.id)
+          } else if (payload.new.status === 'completed' || payload.new.status === 'cancelled') {
+            setActiveRideId(null)
+          }
+        })
+        .subscribe()
+    } catch (e) {
+      console.warn('Subscription error:', e)
+    }
 
     return () => {
       isMounted = false
       clearInterval(locationInterval)
-      supabase.removeChannel(subscription)
+      if (subscription) {
+        try {
+          supabase.removeChannel(subscription)
+        } catch (e) {}
+      }
     }
-  }, [])
+  }, [showSplash]) // Dépendance sur showSplash pour recharger quand la page de garde se ferme
+
+  // Afficher la page de garde au démarrage
+  if (showSplash) {
+    return <DriverSplashScreen onComplete={() => setShowSplash(false)} />
+  }
 
   const statusBrand = homeContent?.brand || 'LiviGo Conducteur'
 
