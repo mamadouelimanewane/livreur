@@ -7,10 +7,20 @@ export default function DriverSplashScreen({ onComplete }) {
   const [showButton, setShowButton] = useState(false)
 
   useEffect(() => {
-    // Afficher le bouton après 2 secondes
-    const timer = setTimeout(() => setShowButton(true), 2000)
-    return () => clearTimeout(timer)
-  }, [])
+    // Afficher le bouton après 1 seconde
+    const buttonTimer = setTimeout(() => setShowButton(true), 1000)
+    
+    // Auto-fermer après 4 secondes si l'utilisateur n'a pas cliqué
+    const autoCloseTimer = setTimeout(() => {
+      console.log('Auto-fermeture de la page de garde')
+      onComplete()
+    }, 4000)
+    
+    return () => {
+      clearTimeout(buttonTimer)
+      clearTimeout(autoCloseTimer)
+    }
+  }, [onComplete])
 
   return (
     <div
@@ -126,28 +136,35 @@ export default function DriverSplashScreen({ onComplete }) {
       {/* Bouton Commencer */}
       {showButton && (
         <button
-          onClick={onComplete}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            console.log('Bouton Commencer cliqué!')
+            onComplete()
+          }}
+          onTouchStart={(e) => {
+            e.preventDefault()
+            console.log('Bouton Commencer touché!')
+            onComplete()
+          }}
           style={{
             marginTop: 40,
-            padding: '16px 48px',
+            padding: '18px 56px',
             borderRadius: 30,
             background: '#fff',
             color: '#6b21a8',
-            fontSize: 16,
-            fontWeight: 700,
+            fontSize: 18,
+            fontWeight: 800,
             border: 'none',
             cursor: 'pointer',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-            transition: 'transform 0.2s, box-shadow 0.2s',
+            boxShadow: '0 6px 25px rgba(0,0,0,0.25)',
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'manipulation',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
             animation: 'slideUp 0.5s ease-out',
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = 'translateY(-2px)'
-            e.target.style.boxShadow = '0 6px 25px rgba(0,0,0,0.3)'
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = 'translateY(0)'
-            e.target.style.boxShadow = '0 4px 20px rgba(0,0,0,0.2)'
+            position: 'relative',
+            zIndex: 100,
           }}
         >
           Commencer
