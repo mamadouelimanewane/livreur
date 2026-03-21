@@ -106,6 +106,8 @@ jobs:
         run: node scripts/mobileify.js ${{ matrix.target }}
 
       - name: Build web assets
+        env:
+          VITE_APP_TARGET: ${{ matrix.target }}
         run: npm run build
 
       - name: Generate Android platform

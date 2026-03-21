@@ -3,6 +3,7 @@ import { useAuth } from './context/useAuth'
 import AdminLayout from './layouts/AdminLayout'
 import LoginPage from './pages/auth/LoginPage'
 import AIChatWidget from './components/AIChatWidget'
+import AppLauncher from './pages/AppLauncher'
 
 // Dashboard
 import DashboardPage from './pages/dashboard/DashboardPage'
@@ -114,7 +115,7 @@ export default function App() {
     <Routes>
       {/* Public */}
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<AppLauncher />} />
 
       {/* Mobile apps without admin layout */}
       <Route path="/mobile/user" element={<MobileUserApp />} />
