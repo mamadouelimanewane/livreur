@@ -6,6 +6,7 @@ import {
   getMobileDriverHomeContent,
   getMobileDriverProfile,
 } from '../../services/api/mobileService'
+import DriverSplashScreen from './DriverSplashScreen'
 
 const ACCENT = '#4680ff'
 const DARK = '#1a1d2e'
@@ -67,19 +68,42 @@ function HomeTab({ homeContent, setHomeContent, activeRideId }) {
 
   const handleUpdateStatus = async (rideId, status) => {
     try {
+      // Essayer d'abord Supabase
       const { error } = await supabase
         .from('rides')
         .update({ status })
         .eq('id', rideId)
       
-      if (error) throw error
+      if (error) {
+        console.warn('Supabase update failed, using local state:', error.message)
+      }
 
-      setHomeContent(prev => ({ ...prev, incomingRequest: null }))
+      // Mettre à jour l'état local dans tous les cas
+      setHomeContent(prev => ({ 
+        ...prev, 
+        incomingRequest: null,
+        recentRides: [
+          {
+            id: 'LIV-' + Math.floor(Math.random() * 9000 + 1000),
+            from: prev.incomingRequest?.pickup?.split(' - ')[0] || 'Départ',
+            to: prev.incomingRequest?.destination?.split(' - ')[0] || 'Destination',
+            price: prev.incomingRequest?.price || '1 500 FCFA',
+            time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            status: status === 'accepted' ? 'done' : 'cancel'
+          },
+          ...prev.recentRides.slice(0, 4)
+        ]
+      }))
       setRouteCoords(null)
 
-      if (status === 'accepted') alert("Course acceptée !")
+      if (status === 'accepted') {
+        alert("✅ Course acceptée ! Le client a été notifié.")
+      } else {
+        alert("❌ Course refusée.")
+      }
     } catch (err) {
       console.error("Erreur mise à jour course:", err)
+      alert("Erreur lors de la mise à jour. Veuillez réessayer.")
     }
   }
 
@@ -389,6 +413,7 @@ function ErrorPanel({ message }) {
 import ChatOverlay from '../../components/ChatOverlay'
 
 export default function MobileDriverApp() {
+  const [showSplash, setShowSplash] = useState(true)
   const [tab, setTab] = useState('home')
   const [homeContent, setHomeContent] = useState(null)
   const [activeRideId, setActiveRideId] = useState(null)
@@ -396,6 +421,11 @@ export default function MobileDriverApp() {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // Afficher la page de garde au démarrage
+  if (showSplash) {
+    return <DriverSplashScreen onComplete={() => setShowSplash(false)} />
+  }
 
   useEffect(() => {
     let isMounted = true

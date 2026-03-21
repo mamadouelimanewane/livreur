@@ -178,6 +178,7 @@ export const MOBILE_DRIVER_HOME_CONTENT = {
     { value: '4.9', label: 'Note', color: '#f59e0b' },
   ],
   incomingRequest: {
+    db_id: 'demo-ride-001',
     title: 'Nouvelle demande',
     price: '1 500 FCFA',
     pickup: 'Dakar Plateau - Rue Félix Eboué',
