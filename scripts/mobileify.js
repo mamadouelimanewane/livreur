@@ -30,12 +30,17 @@ const configs = {
     appName: 'LiviGo Conducteur',
     server: '/mobile/driver',
   },
+  admin: {
+    appId: 'com.sur.admin',
+    appName: 'LiviGo Admin',
+    server: '/dashboard',
+  },
 }
 
 const cfg = configs[target]
 
 if (!cfg) {
-  console.error(`Unknown target "${target}". Use: user | driver`)
+  console.error(`Unknown target "${target}". Use: user | driver | admin`)
   process.exit(1)
 }
 

@@ -15,6 +15,7 @@ on:
           - all
           - user
           - driver
+          - admin
       build_type:
         description: "APK build type"
         required: true
@@ -43,8 +44,11 @@ jobs:
             driver)
               echo 'matrix={"include":[{"target":"driver","label":"driver","app_name":"LiviGo Conducteur"}]}' >> "$GITHUB_OUTPUT"
               ;;
+            admin)
+              echo 'matrix={"include":[{"target":"admin","label":"admin","app_name":"LiviGo Admin"}]}' >> "$GITHUB_OUTPUT"
+              ;;
             *)
-              echo 'matrix={"include":[{"target":"user","label":"client","app_name":"LiviGo Utilisateur"},{"target":"driver","label":"driver","app_name":"LiviGo Conducteur"}]}' >> "$GITHUB_OUTPUT"
+              echo 'matrix={"include":[{"target":"user","label":"client","app_name":"LiviGo Utilisateur"},{"target":"driver","label":"driver","app_name":"LiviGo Conducteur"},{"target":"admin","label":"admin","app_name":"LiviGo Admin"}]}' >> "$GITHUB_OUTPUT"
               ;;
           esac
 

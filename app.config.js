@@ -20,10 +20,19 @@ const configs = {
       backgroundColor: '#1a1d2e',
     },
   },
+  admin: {
+    name: 'LiviGo Admin',
+    slug: 'sur-admin',
+    bundleId: 'com.sur.admin',
+    icon: './assets/adaptive-icon.png',
+    splash: {
+      backgroundColor: '#1a1d2e',
+    },
+  },
 }
 
 const cfg = configs[target] || configs.user
-const mobileRoute = target === 'driver' ? '/mobile/driver' : '/mobile/user'
+const mobileRoute = target === 'driver' ? '/mobile/driver' : target === 'admin' ? '/dashboard' : '/mobile/user'
 
 export default {
   expo: {
