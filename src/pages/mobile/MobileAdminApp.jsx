@@ -1,5 +1,5 @@
-import AdminAppFull from './AdminAppFull'
+import AdminAppSur from './AdminAppSur'
 
 export default function MobileAdminApp() {
-  return <AdminAppFull />
+  return <AdminAppSur />
 }
