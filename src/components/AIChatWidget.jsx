@@ -90,8 +90,12 @@ export default function AIChatWidget() {
     { icon: <FiHeadphones />, text: 'Support', payload: '/contacter_support' }
   ]
 
-  // Bouton flottant fermé
+  // Bouton flottant fermé - ne pas afficher sur mobile driver
   if (!isOpen) {
+    // Vérifier si on est sur l'app driver mobile
+    const isMobileDriver = window.location.pathname.includes('/mobile/driver')
+    if (isMobileDriver) return null
+    
     return (
       <button 
         onClick={() => setIsOpen(true)}

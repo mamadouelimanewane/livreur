@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { FiHome, FiMapPin, FiDollarSign, FiUser, FiCheckCircle, FiXCircle, FiToggleLeft, FiToggleRight, FiTruck, FiPhone, FiStar, FiFileText, FiAlertCircle, FiCamera } from 'react-icons/fi'
 import { MdOutlineLocalTaxi } from 'react-icons/md'
+import DriverAppEnhanced from './DriverAppEnhanced'
 import {
   getMobileDriverEarnings,
   getMobileDriverHomeContent,
@@ -575,68 +576,5 @@ export default function MobileDriverApp() {
     return <DriverSplashScreen onComplete={() => setShowSplash(false)} />
   }
 
-  const statusBrand = homeContent?.brand || 'LiviGo Conducteur'
-
-  return (
-    <div style={{
-      maxWidth: 430, margin: '0 auto', minHeight: '100vh',
-      background: BG, display: 'flex', flexDirection: 'column',
-      fontFamily: 'Inter, -apple-system, sans-serif',
-    }}>
-      <style>{`
-        @keyframes pulse {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.02); border-color: #4680ff; }
-          100% { transform: scale(1); }
-        }
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-      `}</style>
-      <div style={{
-        background: DARK, padding: '10px 20px',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        color: '#fff', fontSize: 12, fontWeight: 600,
-      }}>
-        <span>{statusBrand}</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: GREEN }} />
-          <span style={{ opacity: 0.6, fontSize: 11 }}>En ligne</span>
-        </div>
-      </div>
-
-      <div style={{ flex: 1, overflowY: 'auto', paddingTop: 16 }}>
-        {loading ? (
-          <LoadingPanel message="Chargement de l'application..." />
-        ) : error ? (
-          <ErrorPanel message={error} />
-        ) : (
-          <>
-            {tab === 'home' && homeContent && <HomeTab homeContent={homeContent} setHomeContent={setHomeContent} activeRideId={activeRideId} />}
-            {tab === 'earnings' && earnings && <EarningsTab earnings={earnings} />}
-            {tab === 'profile' && profile && <ProfileTab profile={profile} />}
-          </>
-        )}
-      </div>
-
-      <div style={{
-        background: '#fff',
-        borderTop: '1px solid #e2e8f0',
-        display: 'flex', padding: '4px 0 8px', flexShrink: 0,
-        boxShadow: '0 -2px 10px rgba(0,0,0,0.04)',
-      }}>
-        <BottomTab icon={<FiHome size={20} />} label="Accueil" active={tab === 'home'} onClick={() => setTab('home')} />
-        <BottomTab icon={<FiDollarSign size={20} />} label="Gains" active={tab === 'earnings'} onClick={() => setTab('earnings')} />
-        <BottomTab icon={<FiUser size={20} />} label="Profil" active={tab === 'profile'} onClick={() => setTab('profile')} />
-      </div>
-
-      {activeRideId && (
-        <ChatOverlay 
-          rideId={String(activeRideId)} 
-          currentUser="driver" 
-        />
-      )}
-    </div>
-  )
+  return <DriverAppEnhanced />
 }
