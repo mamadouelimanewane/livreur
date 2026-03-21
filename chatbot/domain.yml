@@ -1,0 +1,122 @@
+version: "3.1"
+
+intents:
+  - saluer
+  - saluter_wolof
+  - au_revoir
+  - au_revoir_wolof
+  - commander_taxi
+  - commander_taxi_wolof
+  - commander_livraison
+  - commander_livraison_wolof
+  - prix_course
+  - prix_course_wolof
+  - suivre_course
+  - annuler_course
+  - mode_paiement
+  - heure_arrivee
+  - contacter_support
+  - donner_destination
+  - donner_adresse_livraison
+  - affirmer
+  - nier
+
+entities:
+  - destination
+  - origine
+
+slots:
+  destination:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: destination
+  origine:
+    type: text
+    mappings:
+      - type: from_entity
+        entity: origine
+  type_course:
+    type: categorical
+    values:
+      - taxi
+      - livraison
+    mappings:
+      - type: custom
+
+responses:
+  utter_saluer:
+    - text: "Bonjour ! 👋 Bienvenue sur LiviGo. Comment puis-je vous aider ?"
+    - text: "Salut ! Je suis l'assistant LiviGo. Que puis-je faire pour vous ?"
+    - text: "Bienvenue sur LiviGo ! 🚗 Taxi ou livraison, je suis là pour vous aider."
+    
+  utter_saluer_wolof:
+    - text: "Jàmm nga am ! 👋 Maangi LiviGo assistant. Lu ma la mënë helpé ?"
+    - text: "Jàmm rekk ! Maangi fi. Bëgg taxi walla yónne ?"
+    
+  utter_demander_service:
+    - text: "Souhaitez-vous un 🚕 **taxi** ou une 📦 **livraison** ?"
+    - text: "Que désirez-vous ? Taxi ou livraison ?"
+    
+  utter_demander_destination:
+    - text: "Où souhaitez-vous aller ? 📍"
+    - text: "Quelle est votre destination ?"
+    
+  utter_demander_origine:
+    - text: "D'où partez-vous ? 📍"
+    - text: "Quelle est votre position actuelle ?"
+    
+  utter_confirmer_taxi:
+    - text: "Parfait ! Je recherche un taxi pour vous... 🚕"
+    - text: "Très bien, je trouve un chauffeur disponible. ⏳"
+    
+  utter_confirmer_livraison:
+    - text: "C'est noté ! Je cherche un livreur... 📦"
+    - text: "Parfait, un livreur va être assigné. ⏳"
+    
+  utter_prix_course:
+    - text: "Le prix dépend de la distance. Pour une course moyenne à Dakar :\n🚕 Moto Taxi : 500 - 2000 FCFA\n🚗 Taxi Premium : 1000 - 5000 FCFA\n📦 Livraison : 500 - 3000 FCFA"
+    
+  utter_prix_course_wolof:
+    - text: "Njëg bi dafay sukkandiku ak distance bi. Ci Dakar :\n🚕 Moto Taxi : 500 - 2000 FCFA\n🚗 Taxi Premium : 1000 - 5000 FCFA"
+    
+  utter_modes_paiement:
+    - text: "💳 Modes de paiement acceptés :\n• Orange Money\n• Wave\n• Free Money\n• Espèces\n• LiviWallet"
+    
+  utter_heure_arrivee:
+    - text: "Le chauffeur arrive généralement dans 5-10 minutes. Vous pouvez suivre sa position en temps réel dans l'app. 📍"
+    
+  utter_suivre_course:
+    - text: "Vous pouvez suivre votre course en temps réel dans l'application LiviGo. 📍"
+    
+  utter_annuler_course:
+    - text: "Pour annuler, allez dans 'Mes courses' et cliquez sur 'Annuler'. Attention, une annulation tardive peut entraîner des frais."
+    
+  utter_contacter_support:
+    - text: "📞 Support LiviGo :\n• Téléphone : +221 77 000 00 00\n• Email : support@livigo.sn\n• WhatsApp : +221 77 000 00 00"
+    
+  utter_au_revoir:
+    - text: "Au revoir ! À bientôt sur LiviGo ! 👋"
+    - text: "Merci d'utiliser LiviGo. Bonne journée ! 🚗"
+    
+  utter_au_revoir_wolof:
+    - text: "Ba beneen yoon ! Jàmm ak jàmm ! 👋"
+    - text: "Jàmm rekk ! Ba suba si ! 🚗"
+    
+  utter_default:
+    - text: "Je n'ai pas bien compris. Voulez-vous un taxi, une livraison, ou autre chose ?"
+    - text: "Pouvez-vous reformuler ? Je peux vous aider pour : taxi, livraison, prix, ou support."
+    
+  utter_default_wolof:
+    - text: "Maangi xamul lu nga wax. Bëgg taxi, yónne walla leneen ?"
+    - text: "Man déggul. Man la helpé ci taxi, yónne, walla prix."
+
+actions:
+  - action_commander_taxi
+  - action_commander_livraison
+  - action_calculer_prix
+  - action_verifier_chauffeur
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

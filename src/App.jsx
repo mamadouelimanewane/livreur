@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/useAuth'
 import AdminLayout from './layouts/AdminLayout'
 import LoginPage from './pages/auth/LoginPage'
+import AIChatWidget from './components/AIChatWidget'
 
 // Dashboard
 import DashboardPage from './pages/dashboard/DashboardPage'
@@ -109,6 +110,7 @@ function RequireAuth({ children }) {
 
 export default function App() {
   return (
+    <>
     <Routes>
       {/* Public */}
       <Route path="/login" element={<LoginPage />} />
@@ -233,5 +235,9 @@ export default function App() {
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>
+    
+    {/* Chatbot IA LiviGo */}
+    <AIChatWidget />
+    </>
   )
 }

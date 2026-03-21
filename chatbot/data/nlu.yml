@@ -1,0 +1,179 @@
+version: "3.1"
+
+nlu:
+  # ============================================
+  # INTENTIONS FRANÇAIS
+  # ============================================
+  
+  - intent: saluer
+    examples: |
+      - bonjour
+      - salut
+      - hello
+      - coucou
+      - bonsoir
+      - hey
+      - bonjour LiviGo
+      - salut comment ça va
+      
+  - intent: au_revoir
+    examples: |
+      - au revoir
+      - bye
+      - à bientôt
+      - ciao
+      - merci au revoir
+      - bonne journée
+      - à plus
+      
+  - intent: commander_taxi
+    examples: |
+      - je veux un taxi
+      - commander un taxi
+      - je cherche un taxi
+      - réserver un taxi
+      - j'ai besoin d'un taxi
+      - appeler un taxi
+      - je veux aller quelque part
+      
+  - intent: commander_livraison
+    examples: |
+      - je veux envoyer un colis
+      - faire une livraison
+      - commander une livraison
+      - envoyer un paquet
+      - livrer quelque chose
+      - je veux livrer un colis
+      
+  - intent: prix_course
+    examples: |
+      - combien coûte une course
+      - quel est le prix
+      - c'est combien
+      - tarif course
+      - prix taxi
+      - prix livraison
+      - combien je vais payer
+      
+  - intent: suivre_course
+    examples: |
+      - où est mon chauffeur
+      - suivre ma course
+      - position du chauffeur
+      - mon chauffeur est où
+      - statut de ma course
+      - où en est ma livraison
+      
+  - intent: annuler_course
+    examples: |
+      - annuler ma course
+      - je veux annuler
+      - annuler la course
+      - je ne veux plus
+      - annuler ma livraison
+      
+  - intent: mode_paiement
+    examples: |
+      - comment payer
+      - modes de paiement
+      - je peux payer comment
+      - acceptez vous Orange Money
+      - acceptez vous Wave
+      - paiement mobile
+      
+  - intent: heure_arrivee
+    examples: |
+      - quand arrive le chauffeur
+      - temps d'attente
+      - combien de temps
+      - il arrive quand
+      - durée d'attente
+      
+  - intent: contacter_support
+    examples: |
+      - je veux parler à un agent
+      - contacter le support
+      - aide
+      - j'ai un problème
+      - service client
+      - assistance
+      
+  # ============================================
+  # INTENTIONS WOLOF
+  # ============================================
+  
+  - intent: saluter_wolof
+    examples: |
+      - jàmm nga am
+      - naka suba si
+      - naka wa kër gi
+      - jàmm rekk
+      - maangi fi
+      - naka la
+      
+  - intent: commander_taxi_wolof
+    examples: |
+      - dama bëgg taxi
+      - bëgg naa taxi
+      - man naa dem taxi
+      - liggéeyukaay taxi
+      - taxi bu ma bëgg
+      
+  - intent: commander_livraison_wolof
+    examples: |
+      - dama bëgg yónne
+      - yónne lëf
+      - yeb ab paake
+      - liggéeyukaay yónne
+      
+  - intent: prix_course_wolof
+    examples: |
+      - ñaata la tax
+      - ñaata la su laaj
+      - njëg la
+      - ñaata dërëm la
+      
+  - intent: au_revoir_wolof
+    examples: |
+      - ba beneen yoon
+      - jàmm ak jàmm
+      - mungi dem
+      - ba suba si
+      
+  # ============================================
+  # ENTITÉS
+  # ============================================
+  
+  - intent: donner_destination
+    examples: |
+      - je vais à [Dakar](destination)
+      - je veux aller à [Plateau](destination)
+      - destination [Ouakam](destination)
+      - aller à [Médina](destination)
+      - emmenez moi à [Guédiawaye](destination)
+      - je vais du [Plateau](origine) à [Ouakam](destination)
+      
+  - intent: donner_adresse_livraison
+    examples: |
+      - livrer à [Dakar](destination)
+      - adresse [Rue 10 Parcelles](destination)
+      - envoyer à [Thiès](destination)
+      
+  - regex: destination
+    examples: |
+      - \b[A-Z][a-z]+\b
+
+  - intent: affirmer
+    examples: |
+      - oui
+      - c'est ça
+      - exactement
+      - tout à fait
+      - oui c'est bon
+      
+  - intent: nier
+    examples: |
+      - non
+      - pas du tout
+      - ce n'est pas ça
+      - non merci

@@ -1,0 +1,25 @@
+# Configuration des endpoints Rasa
+
+action_endpoint:
+  url: "http://localhost:5055/webhook"
+
+# Tracker store (stockage des conversations)
+tracker_store:
+  type: redis
+  url: localhost
+  port: 6379
+  db: 0
+
+# Event broker (optionnel)
+# event_broker:
+#   type: pika
+#   url: localhost
+#   username: guest
+#   password: guest
+#   queue: rasa_events
+
+# Lock store (pour production)
+# lock_store:
+#   type: redis
+#   url: localhost
+#   port: 6379

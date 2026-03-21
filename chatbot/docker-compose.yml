@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # Service Rasa principal
+  rasa:
+    build: .
+    ports:
+      - "5005:5005"
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+    command: >
+      run --enable-api --cors "*" --debug
+    depends_on:
+      - action_server
+
+  # Serveur d'actions personnalisées
+  action_server:
+    image: rasa/rasa-sdk:latest
+    volumes:
+      - ./actions:/app/actions
+    ports:
+      - "5055:5055"
+
+  # Redis pour le stockage des conversations
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  # Interface d'administration (optionnel)
+  rasa-x:
+    image: rasa/rasa-x:latest
+    ports:
+      - "5002:5002"
+    environment:
+      - RASA_X_PASSWORD=admin123
+    depends_on:
+      - rasa
+      - redis

@@ -1,0 +1,116 @@
+version: "3.1"
+
+rules:
+  # ============================================
+  # RÈGLES DE BASE
+  # ============================================
+  
+  - rule: Dire bonjour (Français)
+    steps:
+      - intent: saluer
+      - action: utter_saluer
+      - action: utter_demander_service
+      
+  - rule: Dire bonjour (Wolof)
+    steps:
+      - intent: saluter_wolof
+      - action: utter_saluer_wolof
+      - action: utter_demander_service
+      
+  - rule: Dire au revoir (Français)
+    steps:
+      - intent: au_revoir
+      - action: utter_au_revoir
+      
+  - rule: Dire au revoir (Wolof)
+    steps:
+      - intent: au_revoir_wolof
+      - action: utter_au_revoir_wolof
+      
+  # ============================================
+  # COMMANDE TAXI
+  # ============================================
+  
+  - rule: Commander un taxi (Français)
+    steps:
+      - intent: commander_taxi
+      - action: utter_demander_destination
+      
+  - rule: Commander un taxi (Wolof)
+    steps:
+      - intent: commander_taxi_wolof
+      - action: utter_demander_destination
+      
+  - rule: Confirmer destination taxi
+    steps:
+      - intent: donner_destination
+      - action: utter_confirmer_taxi
+      - action: action_commander_taxi
+      
+  # ============================================
+  # COMMANDE LIVRAISON
+  # ============================================
+  
+  - rule: Commander une livraison (Français)
+    steps:
+      - intent: commander_livraison
+      - action: utter_demander_destination
+      
+  - rule: Commander une livraison (Wolof)
+    steps:
+      - intent: commander_livraison_wolof
+      - action: utter_demander_destination
+      
+  - rule: Confirmer destination livraison
+    steps:
+      - intent: donner_adresse_livraison
+      - action: utter_confirmer_livraison
+      - action: action_commander_livraison
+      
+  # ============================================
+  # INFORMATIONS
+  # ============================================
+  
+  - rule: Demander le prix (Français)
+    steps:
+      - intent: prix_course
+      - action: utter_prix_course
+      
+  - rule: Demander le prix (Wolof)
+    steps:
+      - intent: prix_course_wolof
+      - action: utter_prix_course_wolof
+      
+  - rule: Demander modes de paiement
+    steps:
+      - intent: mode_paiement
+      - action: utter_modes_paiement
+      
+  - rule: Demander heure d'arrivée
+    steps:
+      - intent: heure_arrivee
+      - action: utter_heure_arrivee
+      
+  - rule: Suivre course
+    steps:
+      - intent: suivre_course
+      - action: utter_suivre_course
+      
+  - rule: Annuler course
+    steps:
+      - intent: annuler_course
+      - action: utter_annuler_course
+      
+  - rule: Contacter support
+    steps:
+      - intent: contacter_support
+      - action: utter_contacter_support
+      
+  # ============================================
+  # FALLBACK
+  # ============================================
+  
+  - rule: Message non compris
+    steps:
+      - intent: nlu_fallback
+      - action: utter_default
