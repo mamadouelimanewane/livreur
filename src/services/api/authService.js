@@ -36,8 +36,24 @@ export async function login(credentials) {
 
   // Demo credentials for fallback
   const DEMO_CREDENTIALS = {
-    email: 'admin@livigo.com',
-    password: 'admin123'
+    admin: {
+      email: 'admin@livigo.com',
+      password: 'admin123',
+      name: 'Admin LiviGo',
+      role: 'superadmin'
+    },
+    driver: {
+      email: 'driver@livigo.com',
+      password: 'driver123',
+      name: 'Chauffeur LiviGo',
+      role: 'driver'
+    },
+    user: {
+      email: 'user@livigo.com',
+      password: 'user123',
+      name: 'Client LiviGo',
+      role: 'user'
+    }
   }
 
   try {
@@ -62,17 +78,19 @@ export async function login(credentials) {
   // Fallback to demo auth
   await new Promise(resolve => setTimeout(resolve, 600))
   
-  // Check demo credentials
-  if (credentials.email === DEMO_CREDENTIALS.email && credentials.password === DEMO_CREDENTIALS.password) {
-    const userData = {
-      id: 1,
-      name: 'Admin LiviGo',
-      email: credentials.email,
-      role: 'superadmin',
-      avatar: null,
+  // Check demo credentials for all user types
+  for (const [type, creds] of Object.entries(DEMO_CREDENTIALS)) {
+    if (credentials.email === creds.email && credentials.password === creds.password) {
+      const userData = {
+        id: type === 'admin' ? 1 : type === 'driver' ? 2 : 3,
+        name: creds.name,
+        email: credentials.email,
+        role: creds.role,
+        avatar: null,
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(userData))
+      return userData
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData))
-    return userData
   }
   
   throw new Error('Identifiants invalides')
