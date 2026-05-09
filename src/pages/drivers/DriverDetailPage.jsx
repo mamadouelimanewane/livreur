@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { FiUser, FiPhone, FiMail, FiMapPin, FiTruck, FiStar, FiDollarSign, FiFileText, FiCheck, FiX, FiArrowLeft } from 'react-icons/fi'
+import { FiUser, FiPhone, FiMail, FiMapPin, FiTruck, FiStar, FiDollarSign, FiFileText, FiCheck, FiX, FiArrowLeft, FiShield, FiLoader } from 'react-icons/fi'
 import { MOCK_DRIVERS } from '../../data/mockApiData'
+import { supabase } from '../../services/api/supabaseClient'
 
 const TABS = ['Informations', 'Performance', 'Transactions', 'Historique']
 
@@ -45,13 +46,73 @@ export default function DriverDetailPage() {
   const { driverId } = useParams()
   const navigate = useNavigate()
   const [tab, setTab] = useState('Informations')
+  const [driver, setDriver] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState(null)
 
-  // Chercher le conducteur dans les mocks (ou fallback)
-  const driver = MOCK_DRIVERS.find(d => d.id === driverId) ?? {
-    id: driverId, name: 'Conducteur inconnu', phone: '—', email: '—',
-    zone: '—', vehicle: '—', brand: '—', plate: '—', year: '—',
-    rides: 0, amount: '0 FCFA', registered: '—', status: 'En attente',
+  useEffect(() => {
+    let active = true
+    const load = async () => {
+      setLoading(true)
+      try {
+        const { data, error } = await supabase
+          .from('drivers')
+          .select('*')
+          .eq('id', driverId)
+          .single()
+        if (!error && data && active) {
+          setDriver({
+            ...data,
+            rides: data.total_rides ?? data.rides ?? 0,
+            amount: data.total_earnings ? `${Number(data.total_earnings).toLocaleString('fr-FR')} FCFA` : '0 FCFA',
+            registered: data.created_at ? new Date(data.created_at).toLocaleDateString('fr-FR') : '—',
+            rating: data.rating ?? 4.5,
+            acceptance_rate: data.acceptance_rate ?? 88,
+            safety_score: data.safety_score ?? 95,
+          })
+          return
+        }
+      } catch { /* fallback */ }
+      if (active) {
+        const mock = MOCK_DRIVERS.find(d => d.id === driverId) ?? {
+          id: driverId, name: 'Conducteur inconnu', phone: '—', email: '—',
+          zone: '—', vehicle: '—', brand: '—', plate: '—', year: '—',
+          rides: 0, amount: '0 FCFA', registered: '—', status: 'En attente',
+          rating: 4.5, acceptance_rate: 88, safety_score: 95,
+        }
+        setDriver(mock)
+      }
+      if (active) setLoading(false)
+    }
+    load().finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [driverId])
+
+  const handleApprove = async () => {
+    setActionLoading('approve')
+    try {
+      await supabase.from('drivers').update({ status: 'Approuvé' }).eq('id', driverId)
+      setDriver(prev => ({ ...prev, status: 'Approuvé' }))
+    } catch { /* ignore */ }
+    setActionLoading(null)
   }
+
+  const handleReject = async () => {
+    setActionLoading('reject')
+    try {
+      await supabase.from('drivers').update({ status: 'Rejeté' }).eq('id', driverId)
+      setDriver(prev => ({ ...prev, status: 'Rejeté' }))
+    } catch { /* ignore */ }
+    setActionLoading(null)
+  }
+
+  if (loading || !driver) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200, color: '#94a3b8', gap: 10 }}>
+      <FiLoader size={20} style={{ animation: 'spin 1s linear infinite' }} />
+      <style>{`@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}`}</style>
+      Chargement du profil…
+    </div>
+  )
 
   const statusColors = { Approuvé: '#22c55e', 'En attente': '#f59e0b', Rejeté: '#ef4444' }
   const statusColor = statusColors[driver.status] || '#94a3b8'
@@ -114,11 +175,11 @@ export default function DriverDetailPage() {
           {/* Actions rapides */}
           {driver.status === 'En attente' && (
             <div style={{ display: 'flex', gap: 8 }}>
-              <button style={{ padding: '8px 16px', borderRadius: 10, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <FiCheck size={14} /> Approuver
+              <button onClick={handleApprove} disabled={!!actionLoading} style={{ padding: '8px 16px', borderRadius: 10, border: 'none', background: '#22c55e', color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, opacity: actionLoading ? 0.6 : 1 }}>
+                {actionLoading === 'approve' ? <FiLoader size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <FiCheck size={14} />} Approuver
               </button>
-              <button style={{ padding: '8px 16px', borderRadius: 10, border: 'none', background: 'rgba(255,83,112,0.8)', color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <FiX size={14} /> Rejeter
+              <button onClick={handleReject} disabled={!!actionLoading} style={{ padding: '8px 16px', borderRadius: 10, border: 'none', background: 'rgba(255,83,112,0.8)', color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, opacity: actionLoading ? 0.6 : 1 }}>
+                {actionLoading === 'reject' ? <FiLoader size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <FiX size={14} />} Rejeter
               </button>
             </div>
           )}
@@ -185,10 +246,10 @@ export default function DriverDetailPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {[
-              { label: 'Courses totales', value: driver.rides, color: '#4680ff' },
-              { label: 'Note moyenne',    value: '4.8 ★',       color: '#f59e0b' },
-              { label: 'Gains totaux',    value: driver.amount, color: '#22c55e' },
-              { label: 'Taux acceptation', value: '88%',        color: '#a855f7' },
+              { label: 'Courses totales',  value: driver.rides,                    color: '#4680ff' },
+              { label: 'Note moyenne',     value: `${(driver.rating || 4.5).toFixed(1)} ★`, color: '#f59e0b' },
+              { label: 'Gains totaux',     value: driver.amount,                   color: '#22c55e' },
+              { label: 'Taux acceptation', value: `${driver.acceptance_rate || 88}%`, color: '#a855f7' },
             ].map((s, i) => (
               <div key={i} style={{ background: '#fff', borderRadius: 12, padding: '16px 18px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase', marginBottom: 6 }}>{s.label}</div>
@@ -196,6 +257,29 @@ export default function DriverDetailPage() {
               </div>
             ))}
           </div>
+
+          {/* Score de sécurité */}
+          <div style={{ background: '#fff', borderRadius: 14, padding: '20px 24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <h3 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <FiShield size={14} color="#22c55e" /> Score de sécurité LiviProtect
+            </h3>
+            {[
+              { label: 'Score global', value: driver.safety_score ?? 95, color: '#22c55e', max: 100, unit: '/100' },
+              { label: 'Note client',  value: Math.round((driver.rating || 4.5) * 20), color: '#f59e0b', max: 100, unit: '/100' },
+              { label: 'Taux d\'acceptation', value: driver.acceptance_rate ?? 88, color: '#a855f7', max: 100, unit: '%' },
+            ].map((metric, i) => (
+              <div key={i} style={{ marginBottom: i < 2 ? 14 : 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{metric.label}</span>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: metric.color }}>{metric.value}{metric.unit}</span>
+                </div>
+                <div style={{ height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${metric.value}%`, background: metric.color, borderRadius: 4, transition: 'width 0.5s' }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div style={{ background: '#fff', borderRadius: 14, padding: '20px 24px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 700 }}>Courses cette semaine</h3>
             <MiniBar data={PERF_WEEKLY} />
@@ -229,6 +313,8 @@ export default function DriverDetailPage() {
           </table>
         </div>
       )}
+
+      <style>{`@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}`}</style>
 
       {tab === 'Historique' && (
         <div style={{ background: '#fff', borderRadius: 14, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' }}>

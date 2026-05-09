@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FiPackage, FiDownload, FiInfo, FiEye } from 'react-icons/fi'
+import { FiPackage, FiDownload, FiInfo, FiEye, FiPrinter } from 'react-icons/fi'
 import { PageHeader, Btn, FilterBar, Select, TextInput, Badge } from '../../components/PageLayout'
 import {
   getDeliveryRides,
@@ -7,6 +7,7 @@ import {
   getRideTitles,
   getRideTypeFilter,
 } from '../../services/api/ridesService'
+import { printRideReceipt } from '../../services/api/exportService'
 
 export default function RidesPage({ type = 'all' }) {
   const [rides, setRides] = useState([])
@@ -103,7 +104,23 @@ export default function RidesPage({ type = 'all' }) {
                   <td style={{ padding: '10px 14px', fontSize: 13, fontWeight: 600 }}>{r.amount}</td>
                   <td style={{ padding: '10px 14px', fontSize: 11, color: '#718096', whiteSpace: 'nowrap' }}>{r.date}</td>
                   <td style={{ padding: '10px 14px' }}><Badge color={statusConfig[r.status].color} bg={statusConfig[r.status].bg}>{r.status}</Badge></td>
-                  <td style={{ padding: '10px 14px' }}><button style={{ padding: '4px 8px', background: '#4680ff', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer' }}><FiEye size={12} /></button></td>
+                  <td style={{ padding: '10px 14px', display: 'flex', gap: 4, alignItems: 'center' }}>
+                    <button style={{ padding: '4px 8px', background: '#4680ff', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer' }}><FiEye size={12} /></button>
+                    {r.status === 'Terminée' && (
+                      <button
+                        onClick={() => printRideReceipt({
+                          id: r.id, pickup_address: r.from, destination_address: r.to,
+                          driver_name: r.driver, client_name: r.client, price: r.amount?.replace(/[^\d]/g, ''),
+                          status: r.status, type: r.product || 'Livraison',
+                          created_at: r.date, payment_method: r.payment || 'Cash',
+                        })}
+                        title="Imprimer le reçu"
+                        style={{ padding: '4px 8px', background: '#f59e0b', border: 'none', borderRadius: 4, color: '#fff', cursor: 'pointer' }}
+                      >
+                        <FiPrinter size={12} />
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

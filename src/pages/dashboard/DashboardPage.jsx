@@ -183,8 +183,7 @@ export default function DashboardPage() {
     setLoading(true)
     try {
       const data = await getDashboardStats()
-      // Si les conducteurs viennent de Supabase (> 0 online), c'est du live
-      setIsLive(data.site.onlineDrivers > 0 || data.taxi.total !== 54)
+      setIsLive(!!data.fromDB)
       setStats(data)
       setLastUpdate(new Date())
     } catch (err) {

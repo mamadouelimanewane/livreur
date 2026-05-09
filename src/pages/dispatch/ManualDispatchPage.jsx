@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { FiSend, FiSearch, FiMapPin, FiUser, FiTruck, FiCheckCircle, FiAlertCircle, FiLoader, FiPhone, FiStar } from 'react-icons/fi'
+import { FiSend, FiSearch, FiMapPin, FiUser, FiTruck, FiCheckCircle, FiAlertCircle, FiLoader, FiPhone, FiStar, FiZap } from 'react-icons/fi'
 import { PageHeader, Btn, Card } from '../../components/PageLayout'
 import { getAvailableDrivers, dispatchRide } from '../../services/api/dashboardService'
 import { locationService } from '../../services/api/locationService'
+import { autoDispatch } from '../../services/api/autoDispatchService'
 
 const inputStyle = {
   width: '100%', padding: '9px 12px',
@@ -165,6 +166,7 @@ export default function ManualDispatchPage() {
 
   // Dispatch
   const [dispatching, setDispatching] = useState(false)
+  const [autoDispatching, setAutoDispatching] = useState(false)
   const [alert, setAlert] = useState(null) // { status: 'success'|'error', message }
 
   /* ── Chargement des conducteurs disponibles ── */
@@ -215,6 +217,44 @@ export default function ManualDispatchPage() {
   const filteredDrivers = zoneFilter === 'Toutes zones'
     ? drivers
     : drivers.filter(d => d.zone === zoneFilter)
+
+  /* ── Auto-Dispatch IA ── */
+  const handleAutoDispatch = async () => {
+    if (!pickup || !dropoff) return
+    setAutoDispatching(true)
+    setAlert(null)
+    try {
+      const km = (routeEstimation?.distance || 0) / 1000
+      const rate = SERVICE_RATES[serviceType] || 150
+      const price = Math.max(500, Math.round(km * rate))
+
+      const result = await autoDispatch({
+        pickup,
+        dropoff,
+        pickupLat: null,
+        pickupLon: null,
+        serviceType,
+        price,
+        client,
+      })
+      if (result?.driver) {
+        const score = result.driver.score != null ? ` (score ${(result.driver.score * 100).toFixed(0)}%)` : ''
+        setAlert({ status: 'success', message: `⚡ Auto-dispatch IA : course assignée à ${result.driver.name}${score}` })
+        setPickup('')
+        setDropoff('')
+        setClient('')
+        setNotes('')
+        setSelectedDriver(null)
+        setRouteEstimation(null)
+      } else {
+        setAlert({ status: 'error', message: 'Aucun conducteur disponible dans le rayon de 5 km.' })
+      }
+    } catch (err) {
+      setAlert({ status: 'error', message: `Erreur auto-dispatch : ${err.message}` })
+    } finally {
+      setAutoDispatching(false)
+    }
+  }
 
   /* ── Dispatch ── */
   const handleDispatch = async () => {
@@ -358,6 +398,28 @@ export default function ManualDispatchPage() {
             serviceType={serviceType}
             loading={routeLoading}
           />
+
+          {/* Bouton auto-dispatch IA */}
+          <button
+            onClick={handleAutoDispatch}
+            disabled={!pickup || !dropoff || autoDispatching || dispatching}
+            style={{
+              width: '100%', padding: '10px', borderRadius: 10,
+              background: pickup && dropoff ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : '#e2e8f0',
+              color: pickup && dropoff ? '#fff' : '#94a3b8',
+              border: 'none', fontSize: 13, fontWeight: 700,
+              cursor: pickup && dropoff ? 'pointer' : 'not-allowed',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              boxShadow: pickup && dropoff ? '0 4px 14px rgba(99,102,241,0.35)' : 'none',
+              transition: 'all 0.2s', marginBottom: 10,
+            }}
+          >
+            {autoDispatching ? (
+              <><FiLoader size={15} style={{ animation: 'spin 1s linear infinite' }} /> Recherche du meilleur conducteur…</>
+            ) : (
+              <><FiZap size={15} /> Auto-Dispatch IA — Meilleur conducteur</>
+            )}
+          </button>
 
           {/* Bouton dispatch */}
           <button

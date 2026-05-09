@@ -31,11 +31,11 @@ export default function AIChatWidget() {
   }, [messages])
 
   // Envoyer un message
-  const sendMessage = async (text, isButton = false) => {
+  const sendMessage = async (text, displayText = null) => {
     if (!text.trim()) return
 
-    // Ajouter le message utilisateur
-    const userMessage = { type: 'user', text: isButton ? text.replace(/^[^\s]+\s/, '') : text }
+    // Ajouter le message utilisateur (displayText pour les boutons, text brut sinon)
+    const userMessage = { type: 'user', text: displayText ?? text }
     setMessages(prev => [...prev, userMessage])
     setInput('')
     setIsTyping(true)
@@ -77,9 +77,9 @@ export default function AIChatWidget() {
     }
   }
 
-  // Gérer le clic sur un bouton
+  // Gérer le clic sur un bouton (envoie le payload au bot, affiche le titre)
   const handleButtonClick = (button) => {
-    sendMessage(button.payload, true)
+    sendMessage(button.payload, button.title)
   }
 
   // Suggestions rapides
@@ -251,7 +251,7 @@ export default function AIChatWidget() {
         {quickReplies.map((reply, i) => (
           <button
             key={i}
-            onClick={() => sendMessage(reply.payload, true)}
+            onClick={() => sendMessage(reply.payload, reply.text)}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               padding: '6px 12px',

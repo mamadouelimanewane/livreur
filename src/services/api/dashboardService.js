@@ -37,13 +37,19 @@ export async function getDashboardStats() {
     : 0
 
   // ── Courses Taxi ──
-  const taxiRides = procesRides(taxiRidesRes, { total: 54, ongoing: 0, cancelled: 3, completed: 24, autoCancelled: 27, revenue: 3233.09, discount: 0 })
+  const taxiRides = processRides(taxiRidesRes, { total: 54, ongoing: 0, cancelled: 3, completed: 24, autoCancelled: 27, revenue: 3233.09, discount: 0 })
 
   // ── Courses Livraison ──
-  const deliveryRides = procesRides(deliveryRidesRes, { total: 13, ongoing: 0, cancelled: 3, completed: 7, autoCancelled: 3, revenue: 13.44, discount: 8 })
+  const deliveryRides = processRides(deliveryRidesRes, { total: 13, ongoing: 0, cancelled: 3, completed: 7, autoCancelled: 3, revenue: 13.44, discount: 8 })
 
-  const totalRevenue = taxiRides.revenue + deliveryRides.revenue
+  const totalRevenue = taxiRides.revenueRaw + deliveryRides.revenueRaw
   const totalDiscount = taxiRides.discount + deliveryRides.discount
+
+  // fromDB est vrai si au moins une requête Supabase a retourné des données
+  const fromDB = (
+    (usersRes.status === 'fulfilled' && !usersRes.value.error) ||
+    (taxiRidesRes.status === 'fulfilled' && !taxiRidesRes.value.error && taxiRidesRes.value.data?.length > 0)
+  )
 
   return {
     site: {
@@ -55,9 +61,11 @@ export async function getDashboardStats() {
       expiringDocs,
       revenue: formatAmount(totalRevenue),
       discount: totalDiscount,
+      fromDB,
     },
     taxi: taxiRides,
     delivery: deliveryRides,
+    fromDB,
   }
 }
 
@@ -65,7 +73,7 @@ export async function getDashboardStats() {
 // Helpers
 // ─────────────────────────────────────────────
 
-function procesRides(settledResult, fallback) {
+function processRides(settledResult, fallback) {
   if (settledResult.status !== 'fulfilled' || settledResult.value.error || !settledResult.value.data?.length) {
     return { ...fallback, revenue: formatAmount(fallback.revenue), discount: fallback.discount, revenueRaw: fallback.revenue }
   }

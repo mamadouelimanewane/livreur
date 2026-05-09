@@ -3,7 +3,8 @@ import {
   FiUser, FiShield, FiTag,
   FiMessageSquare, FiFileText, FiDollarSign,
   FiSend, FiAlertCircle, FiCreditCard, FiSliders,
-  FiTrendingUp, FiActivity, FiRadio,
+  FiTrendingUp, FiActivity, FiRadio, FiZap, FiStar,
+  FiCalendar, FiGift, FiUserPlus,
 } from 'react-icons/fi'
 import {
   MdOutlineLocalTaxi, MdOutlineDeliveryDining,
@@ -113,6 +114,8 @@ export const menu = [
       { id: 'dr-online', label: 'Rapport en ligne du conducteur', path: '/drivers/online-report' },
       { id: 'dr-expiring', label: "Documents proche d'expiration", path: '/drivers/expiring-docs' },
       { id: 'dr-expired', label: 'Document expir\u00e9', path: '/drivers/expired-docs' },
+      { id: 'dr-kyc',     label: '\ud83d\udd10 V\u00e9rification KYC',   path: '/drivers/kyc' },
+      { id: 'dr-bonuses', label: '\ud83c\udf81 Bonus conducteurs',   path: '/drivers/bonuses' },
     ],
   },
   {
@@ -147,6 +150,7 @@ export const menu = [
     children: [
       { id: 'sos-number', label: 'Num\u00e9ro SOS', path: '/support/sos' },
       { id: 'sos-requests', label: 'Demande Sos', path: '/support/sos-requests' },
+      { id: 'sos-active', label: '\ud83d\udea8 Alertes SOS Actives', path: '/safety/sos-active' },
     ],
   },
   {
@@ -180,6 +184,37 @@ export const menu = [
     label: 'Recharge de portefeuille',
     icon: <FiCreditCard size={16} />,
     path: '/content/wallet-recharge',
+  },
+  { id: 'sep-monetisation', type: 'section', label: 'MONÉTISATION & FIDÉLITÉ' },
+  {
+    id: 'surge-pricing',
+    label: 'Surge Pricing',
+    icon: <FiZap size={16} />,
+    path: '/pricing/surge',
+  },
+  {
+    id: 'liviwallet',
+    label: 'LiviWallet',
+    icon: <FiCreditCard size={16} />,
+    path: '/wallet',
+  },
+  {
+    id: 'livistars',
+    label: 'LiviStars — Fidélité',
+    icon: <FiStar size={16} />,
+    path: '/loyalty',
+  },
+  {
+    id: 'parrainage',
+    label: 'Parrainage & Referral',
+    icon: <FiUserPlus size={16} />,
+    path: '/referral',
+  },
+  {
+    id: 'scheduled-rides',
+    label: 'Courses planifiées',
+    icon: <FiCalendar size={16} />,
+    path: '/setup/scheduled-rides',
   },
   { id: 'sep-transactions', type: 'section', label: 'GESTION DES TRANSACTIONS' },
   {

@@ -25,6 +25,7 @@ export default function DriversPage() {
   const [zone, setZone] = useState('Tous')
   const [vehicleType, setVehicleType] = useState('Tous')
   const [entries, setEntries] = useState('50')
+  const [page, setPage] = useState(1)
   const statusStyle = getDriverStatusStyles()
 
   useEffect(() => {
@@ -56,6 +57,11 @@ export default function DriversPage() {
     return true
   })
 
+  const pageSize = parseInt(entries, 10) || 50
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const safePage = Math.min(page, totalPages)
+  const paginated = filtered.slice((safePage - 1) * pageSize, safePage * pageSize)
+
   return (
     <div>
       <PageHeader title="Tous les conducteurs" icon={<FiTruck />}>
@@ -82,7 +88,7 @@ export default function DriversPage() {
         <TextInput placeholder="Rechercher..." value={search} onChange={e => setSearch(e.target.value)} />
         <Select value={entries} onChange={e => setEntries(e.target.value)} options={['10', '25', '50', '100']} style={{ width: 70 }} />
         <Btn color="#4680ff">Rechercher</Btn>
-        <Btn outline color="#6c757d" onClick={() => { setSearch(''); setStatus('Tous') }}>{'R\u00e9initialiser'}</Btn>
+        <Btn outline color="#6c757d" onClick={() => { setSearch(''); setStatus('Tous'); setZone('Tous'); setVehicleType('Tous'); setPage(1) }}>{'R\u00e9initialiser'}</Btn>
       </FilterBar>
 
       <div style={{ background: '#fff', borderRadius: 8, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
@@ -100,14 +106,16 @@ export default function DriversPage() {
                 <tr><td colSpan={8} style={{ padding: 30, textAlign: 'center', color: '#a0aec0', fontSize: 13 }}>Chargement des conducteurs...</td></tr>
               ) : error ? (
                 <tr><td colSpan={8} style={{ padding: 30, textAlign: 'center', color: '#c53030', fontSize: 13 }}>{error}</td></tr>
-              ) : filtered.map((d, i) => (
+              ) : paginated.length === 0 ? (
+                <tr><td colSpan={8} style={{ padding: 30, textAlign: 'center', color: '#a0aec0', fontSize: 13 }}>Aucun conducteur trouvé.</td></tr>
+              ) : paginated.map((d, i) => (
                 <tr
                   key={d.id}
                   style={{ borderBottom: '1px solid #f7f9fb' }}
                   onMouseEnter={e => e.currentTarget.style.background = '#fafbff'}
                   onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
-                  <td style={{ padding: '10px 14px', fontSize: 13, color: '#718096' }}>{i + 1}</td>
+                  <td style={{ padding: '10px 14px', fontSize: 13, color: '#718096' }}>{(safePage - 1) * pageSize + i + 1}</td>
                   <td style={{ padding: '10px 14px' }}><span style={{ fontSize: 13, color: '#4680ff', fontWeight: 600 }}>{d.id}</span></td>
                   <td style={{ padding: '10px 14px', fontSize: 13 }}><div>{d.zone}</div><div style={{ fontSize: 11, color: '#a0aec0' }}>{d.vehicle}</div></td>
                   <td style={{ padding: '10px 14px' }}><div style={{ fontWeight: 600, fontSize: 13, color: '#2d3748' }}>{d.name}</div><div style={{ fontSize: 12, color: '#718096' }}>{d.phone}</div><div style={{ fontSize: 12, color: '#718096' }}>{d.email}</div></td>
@@ -131,11 +139,20 @@ export default function DriversPage() {
           </table>
         </div>
         <div style={{ padding: '10px 14px', borderTop: '1px solid #edf2f7', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, color: '#718096' }}>
-          <span>Affichage de {filtered.length} conducteurs</span>
+          <span>
+            {filtered.length === 0 ? '0 conducteur' : `${(safePage - 1) * pageSize + 1}\u2013${Math.min(safePage * pageSize, filtered.length)} sur ${filtered.length} conducteurs`}
+          </span>
           <div style={{ display: 'flex', gap: 4 }}>
-            {['\u00ab', '\u2039', '1', '\u203a', '\u00bb'].map((p, i) => (
-              <button key={i} style={{ padding: '3px 8px', border: '1px solid #ddd', borderRadius: 4, background: p === '1' ? '#4680ff' : '#fff', color: p === '1' ? '#fff' : '#4a5568', cursor: 'pointer', fontSize: 12 }}>{p}</button>
-            ))}
+            <button onClick={() => setPage(1)} disabled={safePage === 1} style={{ padding: '3px 8px', border: '1px solid #ddd', borderRadius: 4, background: '#fff', color: safePage === 1 ? '#ccc' : '#4a5568', cursor: safePage === 1 ? 'default' : 'pointer', fontSize: 12 }}>\u00ab</button>
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={safePage === 1} style={{ padding: '3px 8px', border: '1px solid #ddd', borderRadius: 4, background: '#fff', color: safePage === 1 ? '#ccc' : '#4a5568', cursor: safePage === 1 ? 'default' : 'pointer', fontSize: 12 }}>\u2039</button>
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              const p = Math.max(1, Math.min(safePage - 2 + i, totalPages - 4 + i, totalPages - Math.min(5, totalPages) + 1 + i))
+              return (
+                <button key={p} onClick={() => setPage(p)} style={{ padding: '3px 8px', border: '1px solid #ddd', borderRadius: 4, background: p === safePage ? '#4680ff' : '#fff', color: p === safePage ? '#fff' : '#4a5568', cursor: 'pointer', fontSize: 12 }}>{p}</button>
+              )
+            })}
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={safePage === totalPages} style={{ padding: '3px 8px', border: '1px solid #ddd', borderRadius: 4, background: '#fff', color: safePage === totalPages ? '#ccc' : '#4a5568', cursor: safePage === totalPages ? 'default' : 'pointer', fontSize: 12 }}>\u203a</button>
+            <button onClick={() => setPage(totalPages)} disabled={safePage === totalPages} style={{ padding: '3px 8px', border: '1px solid #ddd', borderRadius: 4, background: '#fff', color: safePage === totalPages ? '#ccc' : '#4a5568', cursor: safePage === totalPages ? 'default' : 'pointer', fontSize: 12 }}>\u00bb</button>
           </div>
         </div>
       </div>

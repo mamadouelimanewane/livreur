@@ -27,6 +27,8 @@ import VehiclesPage from './pages/drivers/VehiclesPage'
 import DriverMapPage from './pages/drivers/DriverMapPage'
 import DriverDetailPage from './pages/drivers/DriverDetailPage'
 import HeatmapPage from './pages/drivers/HeatmapPage'
+import KYCVerificationPage from './pages/drivers/KYCVerificationPage'
+import ReferralPage from './pages/referral/ReferralPage'
 
 // Reports
 import ReportsLayout from './pages/reports/ReportsLayout'
@@ -100,11 +102,33 @@ import AnalyticsPage from './pages/reports/AnalyticsPage'
 import ScheduledRidesPage from './pages/setup/ScheduledRidesPage'
 import DriverBonusesPage from './pages/drivers/DriverBonusesPage'
 
+// Nouvelles fonctionnalités Uber-grade
+import SurgePricingPage from './pages/pricing/SurgePricingPage'
+import WalletPage from './pages/wallet/WalletPage'
+import LoyaltyPage from './pages/loyalty/LoyaltyPage'
+import SOSPageAdmin from './pages/safety/SOSPage'
+
 /* --------------------------------------------------
    Protected route wrapper
 -------------------------------------------------- */
 function RequireAuth({ children }) {
-  const { user } = useAuth()
+  const { user, isLoading } = useAuth()
+  if (isLoading) return (
+    <div style={{
+      minHeight: '100vh', display: 'flex', alignItems: 'center',
+      justifyContent: 'center', background: '#f4f6f9', flexDirection: 'column', gap: 16,
+    }}>
+      <div style={{
+        width: 44, height: 44, borderRadius: 12,
+        background: 'linear-gradient(135deg, #4680ff, #6366f1)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: '0 4px 20px rgba(70,128,255,0.35)',
+        animation: 'spin 1s linear infinite',
+      }} />
+      <style>{`@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}`}</style>
+      <span style={{ fontSize: 13, color: '#94a3b8', fontWeight: 500 }}>Chargement…</span>
+    </div>
+  )
   if (!user) return <Navigate to="/login" replace />
   return children
 }
@@ -150,6 +174,7 @@ export default function App() {
         <Route path="/drivers/vehicles" element={<VehiclesPage />} />
         <Route path="/drivers/map" element={<DriverMapPage />} />
         <Route path="/drivers/heatmap" element={<HeatmapPage />} />
+        <Route path="/drivers/kyc" element={<KYCVerificationPage />} />
         <Route path="/drivers/:driverId" element={<DriverDetailPage />} />
 
         {/* Delivery */}
@@ -231,6 +256,13 @@ export default function App() {
         <Route path="/reports/analytics" element={<AnalyticsPage />} />
         <Route path="/setup/scheduled-rides" element={<ScheduledRidesPage />} />
         <Route path="/drivers/bonuses" element={<DriverBonusesPage />} />
+
+        {/* Uber-grade Features */}
+        <Route path="/pricing/surge" element={<SurgePricingPage />} />
+        <Route path="/wallet" element={<WalletPage />} />
+        <Route path="/loyalty" element={<LoyaltyPage />} />
+        <Route path="/safety/sos-active" element={<SOSPageAdmin />} />
+        <Route path="/referral" element={<ReferralPage />} />
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
