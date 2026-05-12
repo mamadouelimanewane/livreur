@@ -53,6 +53,7 @@ import MapMarkersPage from './pages/setup/MapMarkersPage'
 import PricingParamsPage from './pages/setup/PricingParamsPage'
 import PriceCardsPage from './pages/setup/PriceCardsPage'
 import PromoCodesPage from './pages/setup/PromoCodesPage'
+import DatabaseSetupPage from './pages/setup/DatabaseSetupPage'
 
 // Dispatch
 import ManualDispatchPage from './pages/dispatch/ManualDispatchPage'
@@ -99,6 +100,33 @@ import MobileDriverApp from './pages/mobile/MobileDriverApp'
 import AnalyticsPage from './pages/reports/AnalyticsPage'
 import ScheduledRidesPage from './pages/setup/ScheduledRidesPage'
 import DriverBonusesPage from './pages/drivers/DriverBonusesPage'
+
+// World-Class Features — TIER 1
+import RealtimeTrackingPage from './pages/tracking/RealtimeTrackingPage'
+import InAppChatPage from './pages/chat/InAppChatPage'
+import AdvancedRatingsPage from './pages/ratings/AdvancedRatingsPage'
+import DeliveryProofPage from './pages/delivery/DeliveryProofPage'
+
+// World-Class Features — TIER 2
+import CorporatePage from './pages/corporate/CorporatePage'
+import AdvancedBookingsPage from './pages/bookings/AdvancedBookingsPage'
+import MultiStopPage from './pages/rides/MultiStopPage'
+import AIDispatchV2Page from './pages/dispatch/AIDispatchV2Page'
+
+// World-Class Features — TIER 3
+import AdvancedAnalyticsPage from './pages/analytics/AdvancedAnalyticsPage'
+import TipsPayoutPage from './pages/finance/TipsPayoutPage'
+import RideCheckPage from './pages/safety/RideCheckPage'
+import DriverPremiumPage from './pages/drivers/DriverPremiumPage'
+
+// World-Class Features — TIER 4
+import SuperAppPage from './pages/super-app/SuperAppPage'
+import PublicAPIPage from './pages/api/PublicAPIPage'
+
+// World-Class Features — TIER 5
+import FeatureFlagsPage from './pages/settings/FeatureFlagsPage'
+import SmartNotificationsPage from './pages/notifications/SmartNotificationsPage'
+import DarkModePreviewPage from './pages/settings/DarkModePreviewPage'
 
 /* --------------------------------------------------
    Protected route wrapper
@@ -180,6 +208,7 @@ export default function App() {
         <Route path="/setup/pricing-params" element={<PricingParamsPage />} />
         <Route path="/setup/pricecards" element={<PriceCardsPage />} />
         <Route path="/setup/promo-codes" element={<PromoCodesPage />} />
+        <Route path="/setup/database" element={<DatabaseSetupPage />} />
 
         {/* Dispatch */}
         <Route path="/dispatch/manual" element={<ManualDispatchPage />} />
@@ -231,6 +260,33 @@ export default function App() {
         <Route path="/reports/analytics" element={<AnalyticsPage />} />
         <Route path="/setup/scheduled-rides" element={<ScheduledRidesPage />} />
         <Route path="/drivers/bonuses" element={<DriverBonusesPage />} />
+
+        {/* World-Class Features — TIER 1 */}
+        <Route path="/tracking/realtime" element={<RealtimeTrackingPage />} />
+        <Route path="/chat/inbox" element={<InAppChatPage />} />
+        <Route path="/ratings/advanced" element={<AdvancedRatingsPage />} />
+        <Route path="/delivery/proof" element={<DeliveryProofPage />} />
+
+        {/* World-Class Features — TIER 2 */}
+        <Route path="/corporate" element={<CorporatePage />} />
+        <Route path="/bookings/advanced" element={<AdvancedBookingsPage />} />
+        <Route path="/rides/multi-stop" element={<MultiStopPage />} />
+        <Route path="/dispatch/ai-v2" element={<AIDispatchV2Page />} />
+
+        {/* World-Class Features — TIER 3 */}
+        <Route path="/analytics/advanced" element={<AdvancedAnalyticsPage />} />
+        <Route path="/finance/tips-payout" element={<TipsPayoutPage />} />
+        <Route path="/safety/ridecheck" element={<RideCheckPage />} />
+        <Route path="/drivers/premium" element={<DriverPremiumPage />} />
+
+        {/* World-Class Features — TIER 4 */}
+        <Route path="/super-app" element={<SuperAppPage />} />
+        <Route path="/api/public" element={<PublicAPIPage />} />
+
+        {/* World-Class Features — TIER 5 */}
+        <Route path="/settings/feature-flags" element={<FeatureFlagsPage />} />
+        <Route path="/notifications/smart" element={<SmartNotificationsPage />} />
+        <Route path="/settings/design-system" element={<DarkModePreviewPage />} />
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
